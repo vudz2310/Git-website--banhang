@@ -6,7 +6,7 @@ const envApiUrl = (import.meta as any).env?.VITE_API_BASE_URL as string;
 export const API_BASE_URL = envApiUrl || (
   isProduction 
     ? `${window.location.origin}/api` // Production: dùng cùng domain với frontend
-    : 'http://localhost:3000/api' // Local API URL
+    : 'http://localhost:5000/api' // Local API URL
 );
 
 function joinUrl(base: string, path: string) {
