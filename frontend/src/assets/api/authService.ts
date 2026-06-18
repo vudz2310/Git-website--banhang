@@ -16,7 +16,7 @@ export interface RegisterData {
 export interface AuthResponse {
   success: boolean;
   user: User;
-  token: string;  // Add JWT token
+  token: string;
   message: string;
 }
 
