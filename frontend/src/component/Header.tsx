@@ -1,18 +1,21 @@
-﻿import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AuthService } from '../assets/api/authService';
-import { CartService } from '../assets/api/cartService';
-import { CategoryService } from '../assets/api/categoryService';
-import type { User, Category } from '../assets/api/types';
-import { ChevronDownIcon, ShoppingCartIcon, MenuIcon, XIcon } from '../components/Icons';
-import { API_BASE_URL } from '../assets/api/http';
+﻿import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { AuthService } from "../assets/api/authService";
+import { CartService } from "../assets/api/cartService";
+import { CategoryService } from "../assets/api/categoryService";
+import type { User, Category } from "../assets/api/types";
+import {
+  ChevronDownIcon,
+  ShoppingCartIcon,
+  MenuIcon,
+  XIcon,
+} from "../components/Icons";
+import { API_BASE_URL } from "../assets/api/http";
 
-// Helper function để build full URL cho avatar
 const getAvatarUrl = (avatar: string | null | undefined): string => {
-  if (!avatar) return '';
-  if (avatar.startsWith('http')) return avatar;
-  // Lấy base URL từ API_BASE_URL (bỏ /api ở cuối)
-  const baseUrl = API_BASE_URL.replace('/api', '');
+  if (!avatar) return "";
+  if (avatar.startsWith("http")) return avatar;
+  const baseUrl = API_BASE_URL.replace("/api", "");
   return `${baseUrl}${avatar}`;
 };
 
@@ -26,14 +29,14 @@ const Header: React.FC = () => {
   useEffect(() => {
     const currentUser = AuthService.getUser();
     setUser(currentUser);
-    
+
     // Load cart item count
     const loadCartCount = async () => {
       try {
         const cart = await CartService.getCart();
         setCartItemCount(CartService.calculateTotalQuantity(cart.items));
       } catch (e) {
-        console.error('Load cart count error:', e);
+        console.error("Load cart count error:", e);
       }
     };
     loadCartCount();
@@ -44,7 +47,7 @@ const Header: React.FC = () => {
         const response = await CategoryService.list();
         setCategories(response.data || []);
       } catch (e) {
-        console.error('Load categories error:', e);
+        console.error("Load categories error:", e);
       }
     };
     loadCategories();
@@ -53,7 +56,7 @@ const Header: React.FC = () => {
     const handleCartUpdate = () => {
       loadCartCount();
     };
-    
+
     // Listen for auth changes
     const handleAuthChange = () => {
       const currentUser = AuthService.getUser();
@@ -64,13 +67,13 @@ const Header: React.FC = () => {
         loadCartCount();
       }
     };
-    
-    window.addEventListener('cartUpdated', handleCartUpdate);
-    window.addEventListener('authChanged', handleAuthChange);
-    
+
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    window.addEventListener("authChanged", handleAuthChange);
+
     return () => {
-      window.removeEventListener('cartUpdated', handleCartUpdate);
-      window.removeEventListener('authChanged', handleAuthChange);
+      window.removeEventListener("cartUpdated", handleCartUpdate);
+      window.removeEventListener("authChanged", handleAuthChange);
     };
   }, []);
 
@@ -93,17 +96,20 @@ const Header: React.FC = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link
+              to="/"
+              className="text-gray-700 hover:text-blue-600 transition-colors"
+            >
               Trang chủ
             </Link>
-            
+
             {/* Danh mục dropdown */}
             <div className="relative group">
               <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors">
                 <span>Danh mục</span>
                 <ChevronDownIcon />
               </button>
-              
+
               {/* Categories dropdown */}
               <div className="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 {categories.length > 0 ? (
@@ -112,7 +118,7 @@ const Header: React.FC = () => {
                       to="/products"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-100"
                     >
-                       Tất cả sản phẩm
+                      Tất cả sản phẩm
                     </Link>
                     {categories.map((category) => (
                       <Link
@@ -131,14 +137,23 @@ const Header: React.FC = () => {
                 )}
               </div>
             </div>
-            
-            <Link to="/products" className="text-gray-700 hover:text-blue-600 transition-colors">
+
+            <Link
+              to="/products"
+              className="text-gray-700 hover:text-blue-600 transition-colors"
+            >
               Sản phẩm
             </Link>
-            <Link to="/about" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link
+              to="/about"
+              className="text-gray-700 hover:text-blue-600 transition-colors"
+            >
               Giới thiệu
             </Link>
-            <Link to="/contact" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link
+              to="/contact"
+              className="text-gray-700 hover:text-blue-600 transition-colors"
+            >
               Liên hệ
             </Link>
           </nav>
@@ -150,7 +165,11 @@ const Header: React.FC = () => {
               className="text-gray-700 hover:text-blue-600 transition-colors"
               aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+              {mobileMenuOpen ? (
+                <XIcon className="w-6 h-6" />
+              ) : (
+                <MenuIcon className="w-6 h-6" />
+              )}
             </button>
             {/* Hiển thị tên user hoặc login/signup trên mobile */}
             {user ? (
@@ -181,11 +200,14 @@ const Header: React.FC = () => {
           {/* User actions */}
           <div className="hidden md:flex items-center space-x-4">
             {/* Cart */}
-            <Link to="/cart" className="relative text-gray-700 hover:text-blue-600 transition-colors">
+            <Link
+              to="/cart"
+              className="relative text-gray-700 hover:text-blue-600 transition-colors"
+            >
               <ShoppingCartIcon />
               {cartItemCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartItemCount > 99 ? '99+' : cartItemCount}
+                  {cartItemCount > 99 ? "99+" : cartItemCount}
                 </span>
               )}
             </Link>
@@ -195,28 +217,30 @@ const Header: React.FC = () => {
               <div className="flex items-center space-x-3">
                 {/* Hiển thị tên người dùng */}
                 <span className="text-gray-700 font-medium hidden lg:block">
-                  Xin chào, <span className="text-blue-600">{user.full_name}</span>
+                  Xin chào,{" "}
+                  <span className="text-blue-600">{user.full_name}</span>
                 </span>
-                
+
                 {/* Avatar hoặc icon */}
                 <div className="relative group">
                   <button className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors">
                     {user.avatar ? (
-                      <img 
+                      <img
                         src={getAvatarUrl(user.avatar)}
                         alt={user.full_name}
                         className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
                         onError={(e) => {
                           // Fallback về avatar mặc định nếu ảnh lỗi
                           const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const fallback = target.nextElementSibling as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
+                          target.style.display = "none";
+                          const fallback =
+                            target.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = "flex";
                         }}
                       />
                     ) : null}
-                    <div 
-                      className={`w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center ${user.avatar ? 'hidden' : ''}`}
+                    <div
+                      className={`w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center ${user.avatar ? "hidden" : ""}`}
                     >
                       <span className="text-blue-600 font-semibold text-sm">
                         {user.full_name.charAt(0).toUpperCase()}
@@ -224,11 +248,13 @@ const Header: React.FC = () => {
                     </div>
                     <ChevronDownIcon className="w-4 h-4" />
                   </button>
-                  
+
                   {/* Dropdown menu */}
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     <div className="px-4 py-2 border-b border-gray-100">
-                      <div className="text-sm font-medium text-gray-900">{user.full_name}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {user.full_name}
+                      </div>
                       <div className="text-xs text-gray-500">{user.email}</div>
                     </div>
                     <Link
@@ -237,7 +263,7 @@ const Header: React.FC = () => {
                     >
                       Hồ sơ
                     </Link>
-                    {user.role === 'admin' && (
+                    {user.role === "admin" && (
                       <Link
                         to="/admin/products"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -245,7 +271,10 @@ const Header: React.FC = () => {
                         Quản trị
                       </Link>
                     )}
-                    <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link
+                      to="/orders"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
                       Đơn hàng
                     </Link>
                     <button
@@ -276,11 +305,14 @@ const Header: React.FC = () => {
           </div>
 
           {/* Mobile cart button */}
-          <Link to="/cart" className="md:hidden relative text-gray-700 hover:text-blue-600 transition-colors ml-2">
+          <Link
+            to="/cart"
+            className="md:hidden relative text-gray-700 hover:text-blue-600 transition-colors ml-2"
+          >
             <ShoppingCartIcon />
             {cartItemCount > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {cartItemCount > 99 ? '99+' : cartItemCount}
+                {cartItemCount > 99 ? "99+" : cartItemCount}
               </span>
             )}
           </Link>
@@ -290,14 +322,14 @@ const Header: React.FC = () => {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <nav className="flex flex-col space-y-4">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Trang chủ
               </Link>
-              
+
               {/* Mobile categories */}
               <div>
                 <button
@@ -305,7 +337,9 @@ const Header: React.FC = () => {
                   className="w-full flex items-center justify-between px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
                 >
                   <span>Danh mục</span>
-                  <ChevronDownIcon className={`w-4 h-4 transition-transform ${mobileCategoryOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDownIcon
+                    className={`w-4 h-4 transition-transform ${mobileCategoryOpen ? "rotate-180" : ""}`}
+                  />
                 </button>
                 {mobileCategoryOpen && (
                   <div className="pl-4 mt-2 space-y-2">
@@ -335,23 +369,23 @@ const Header: React.FC = () => {
                   </div>
                 )}
               </div>
-              
-              <Link 
-                to="/products" 
+
+              <Link
+                to="/products"
                 className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Sản phẩm
               </Link>
-              <Link 
-                to="/about" 
+              <Link
+                to="/about"
                 className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Giới thiệu
               </Link>
-              <Link 
-                to="/contact" 
+              <Link
+                to="/contact"
                 className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -363,28 +397,31 @@ const Header: React.FC = () => {
                 <div className="border-t border-gray-200 pt-4 mt-4">
                   <div className="px-4 py-3 bg-gray-50 rounded-lg mb-2 flex items-center space-x-3">
                     {user.avatar ? (
-                      <img 
+                      <img
                         src={getAvatarUrl(user.avatar)}
                         alt={user.full_name}
                         className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
                         onError={(e) => {
                           // Fallback về avatar mặc định nếu ảnh lỗi
                           const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const fallback = target.nextElementSibling as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
+                          target.style.display = "none";
+                          const fallback =
+                            target.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = "flex";
                         }}
                       />
                     ) : null}
-                    <div 
-                      className={`w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center ${user.avatar ? 'hidden' : ''}`}
+                    <div
+                      className={`w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center ${user.avatar ? "hidden" : ""}`}
                     >
                       <span className="text-blue-600 font-semibold">
                         {user.full_name.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-gray-900">{user.full_name}</div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {user.full_name}
+                      </div>
                       <div className="text-xs text-gray-500">{user.email}</div>
                     </div>
                   </div>
@@ -395,7 +432,7 @@ const Header: React.FC = () => {
                   >
                     Hồ sơ
                   </Link>
-                  {user.role === 'admin' && (
+                  {user.role === "admin" && (
                     <Link
                       to="/admin/products"
                       className="block px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
@@ -404,8 +441,8 @@ const Header: React.FC = () => {
                       Quản trị
                     </Link>
                   )}
-                  <Link 
-                    to="/orders" 
+                  <Link
+                    to="/orders"
                     className="block px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >

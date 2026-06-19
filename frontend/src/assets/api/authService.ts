@@ -1,5 +1,5 @@
-import { httpPost } from './http';
-import type { User } from './types';
+import { httpPost } from "./http";
+import type { User } from "./types";
 
 export interface LoginData {
   email: string;
@@ -22,7 +22,7 @@ export interface AuthResponse {
 
 export const AuthService = {
   async login(data: LoginData): Promise<AuthResponse> {
-    const response = await httpPost<AuthResponse>('/auth/login', data);
+    const response = await httpPost<AuthResponse>("/auth/login", data);
     // Store token after successful login
     if (response.success && response.token) {
       this.setToken(response.token);
@@ -32,7 +32,7 @@ export const AuthService = {
   },
 
   async register(data: RegisterData): Promise<AuthResponse> {
-    const response = await httpPost<AuthResponse>('/auth/register', data);
+    const response = await httpPost<AuthResponse>("/auth/register", data);
     // Store token after successful registration
     if (response.success && response.token) {
       this.setToken(response.token);
@@ -42,53 +42,57 @@ export const AuthService = {
   },
 
   setToken(token: string): void {
-    localStorage.setItem('auth_token', token);
+    localStorage.setItem("auth_token", token);
   },
 
   getToken(): string | null {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem("auth_token");
   },
 
   setUser(user: User): void {
-    localStorage.setItem('user', JSON.stringify(user));
-    window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
+    localStorage.setItem("user", JSON.stringify(user));
+    window.dispatchEvent(new CustomEvent("authChanged", { detail: { user } }));
   },
 
   getUser(): User | null {
     try {
-      const userStr = localStorage.getItem('user');
+      const userStr = localStorage.getItem("user");
       if (!userStr) {
         return null;
       }
       const user = JSON.parse(userStr);
       // Kiểm tra user có đủ thông tin cần thiết không
-      if (!user || typeof user.id !== 'number') {
-        console.error('Invalid user object in localStorage:', user);
+      if (!user || !user.id) {
+        console.error("Invalid user object in localStorage:", user);
         // Xóa user không hợp lệ
-        localStorage.removeItem('user');
+        localStorage.removeItem("user");
         return null;
       }
       // Verify token exists
       if (!this.getToken()) {
-        console.warn('User data exists but no token found. Clearing user data.');
+        console.warn(
+          "User data exists but no token found. Clearing user data.",
+        );
         this.clearUser();
         return null;
       }
       return user;
     } catch (error) {
-      console.error('Error parsing user from localStorage:', error);
-      localStorage.removeItem('user');
+      console.error("Error parsing user from localStorage:", error);
+      localStorage.removeItem("user");
       return null;
     }
   },
 
   clearUser(): void {
-    localStorage.removeItem('user');
-    localStorage.removeItem('auth_token');
-    window.dispatchEvent(new CustomEvent('authChanged', { detail: { user: null } }));
+    localStorage.removeItem("user");
+    localStorage.removeItem("auth_token");
+    window.dispatchEvent(
+      new CustomEvent("authChanged", { detail: { user: null } }),
+    );
   },
 
   isLoggedIn(): boolean {
     return !!this.getUser() && !!this.getToken();
   },
-}; 
+};
