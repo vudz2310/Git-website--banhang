@@ -1,4 +1,4 @@
-export type ID = number;
+export type ID = number | string;
 
 export interface User {
   id: ID;
