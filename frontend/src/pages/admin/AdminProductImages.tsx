@@ -35,7 +35,7 @@ const AdminProductImages: React.FC = () => {
       setProduct(detail.product);
       setImages(detail.images);
     } catch (e: any) {
-      setError(e.message || 'Táº£i thÃ´ng tin sáº£n pháº©m tháº¥t báº¡i');
+      setError(e.message || 'Tải thông tin sản phẩm thất bại');
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ const AdminProductImages: React.FC = () => {
     loadProduct();
   }, [productId]);
 
-  // Xá»­ lÃ½ upload áº£nh
+  // Xử lý upload ảnh
   const handleFileSelect = (file: File) => {
     if (file && file.type.startsWith('image/')) {
       setNewImage(prev => ({
@@ -54,7 +54,7 @@ const AdminProductImages: React.FC = () => {
         url: URL.createObjectURL(file)
       }));
     } else {
-      alert('Vui lÃ²ng chá»n file áº£nh há»£p lá»‡');
+      alert('Vui lòng chọn file ảnh hợp lệ');
     }
   };
 
@@ -118,44 +118,44 @@ const AdminProductImages: React.FC = () => {
       }
       
       setNewImage({ url: '', is_primary: false, sort_order: 0, file: null });
-      loadProduct(); // Reload Ä‘á»ƒ láº¥y áº£nh má»›i
+      loadProduct(); // Reload để lấy ảnh mới
     } catch (e: any) {
-      setError(e.message || 'ThÃªm áº£nh tháº¥t báº¡i');
+      setError(e.message || 'Thêm ảnh thất bại');
     } finally {
       setUploading(false);
     }
   };
 
   const handleDeleteImage = async (imageId: number) => {
-    if (!confirm('Báº¡n cÃ³ cháº¯c muá»‘n xÃ³a áº£nh nÃ y?')) return;
+    if (!confirm('Bạn có chắc muốn xóa ảnh này?')) return;
     try {
       await AdminService.deleteProductImage(productId, imageId);
       loadProduct();
     } catch (e: any) {
-      setError(e.message || 'XÃ³a áº£nh tháº¥t báº¡i');
+      setError(e.message || 'Xóa ảnh thất bại');
     }
   };
 
-  if (loading) return <div>Äang táº£i...</div>;
+  if (loading) return <div>Đang tải...</div>;
   if (error) return <div className="text-red-600">{error}</div>;
-  if (!product) return <div>Sáº£n pháº©m khÃ´ng tá»“n táº¡i</div>;
+  if (!product) return <div>Sản phẩm không tồn tại</div>;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Quáº£n lÃ½ áº£nh: {product.name}</h1>
+        <h1 className="text-2xl font-bold">Quản lý ảnh: {product.name}</h1>
         <button onClick={() => loadProduct()} className="px-3 py-2 bg-gray-200 rounded">
-          LÃ m má»›i
+          Làm mới
         </button>
       </div>
 
-      {/* Form thÃªm áº£nh má»›i */}
+      {/* Form thêm ảnh mới */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-4">ThÃªm áº£nh má»›i</h2>
+        <h2 className="text-lg font-semibold mb-4">Thêm ảnh mới</h2>
         
-        {/* Upload áº£nh tá»« file */}
+        {/* Upload ảnh từ file */}
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-3">Upload áº£nh tá»« file:</label>
+          <label className="block text-sm font-medium mb-3">Upload ảnh từ file:</label>
           
           {/* Drag & Drop Zone */}
           <div
@@ -175,7 +175,7 @@ const AdminProductImages: React.FC = () => {
               </svg>
               <div className="text-sm text-gray-600">
                 <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                  <span>Chá»n áº£nh</span>
+                  <span>Chọn ảnh</span>
                   <input 
                     id="file-upload" 
                     name="file-upload" 
@@ -185,19 +185,19 @@ const AdminProductImages: React.FC = () => {
                     onChange={handleFileInput}
                   />
                 </label>
-                <span className="text-gray-500"> hoáº·c kÃ©o tháº£ áº£nh vÃ o Ä‘Ã¢y</span>
+                <span className="text-gray-500"> hoặc kéo thả ảnh vào đây</span>
               </div>
               <p className="text-xs text-gray-500">
-                PNG, JPG, GIF tá»‘i Ä‘a 10MB
+                PNG, JPG, GIF tối đa 10MB
               </p>
             </div>
           </div>
         </div>
 
-        {/* Hoáº·c nháº­p URL */}
+        {/* Hoặc nhập URL */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2 text-gray-600">
-            Hoáº·c nháº­p URL áº£nh:
+            Hoặc nhập URL ảnh:
           </label>
           <input
             type="url"
@@ -208,17 +208,17 @@ const AdminProductImages: React.FC = () => {
           />
         </div>
 
-        {/* Preview áº£nh Ä‘Ã£ chá»n */}
+        {/* Preview ảnh đã chọn */}
         {(newImage.url || newImage.file) && (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium">áº¢nh Ä‘Ã£ chá»n:</span>
+              <span className="text-sm font-medium">Ảnh đã chọn:</span>
               <button
                 type="button"
                 onClick={removeSelectedFile}
                 className="text-sm text-red-600 hover:text-red-800"
               >
-                ðŸ—‘ï¸ XÃ³a áº£nh
+                🗑️ Xóa ảnh
               </button>
             </div>
             <div className="relative">
@@ -234,22 +234,22 @@ const AdminProductImages: React.FC = () => {
               )}
               {newImage.file && (
                 <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                  File má»›i
+                  File mới
                 </div>
               )}
             </div>
             {newImage.file && (
               <p className="text-xs text-green-600 mt-2">
-                ðŸ“ {newImage.file.name} ({(newImage.file.size / 1024 / 1024).toFixed(2)} MB)
+                📂 {newImage.file.name} ({(newImage.file.size / 1024 / 1024).toFixed(2)} MB)
               </p>
             )}
           </div>
         )}
 
-        {/* CÃ¡c tÃ¹y chá»n khÃ¡c */}
+        {/* Các tùy chọn khác */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-medium mb-1">Thá»© tá»±</label>
+            <label className="block text-sm font-medium mb-1">Thứ tự</label>
             <input
               type="number"
               value={newImage.sort_order}
@@ -266,7 +266,7 @@ const AdminProductImages: React.FC = () => {
                 onChange={(e) => setNewImage({ ...newImage, is_primary: e.target.checked })}
                 className="mr-2 rounded focus:ring-2 focus:ring-blue-500"
               />
-              <span className="text-sm font-medium">áº¢nh chÃ­nh</span>
+              <span className="text-sm font-medium">Ảnh chính</span>
             </label>
           </div>
           <div className="flex items-end">
@@ -275,22 +275,22 @@ const AdminProductImages: React.FC = () => {
               disabled={uploading || (!newImage.url.trim() && !newImage.file)}
               className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {uploading ? 'ðŸ”„ Äang xá»­ lÃ½...' : 'âž• ThÃªm áº£nh'}
+              {uploading ? '🔄 Đang xử lý...' : '➕ Thêm ảnh'}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Danh sÃ¡ch áº£nh */}
+      {/* Danh sách ảnh */}
       <div className="bg-white rounded-lg shadow-lg">
-        <h2 className="text-lg font-semibold p-6 border-b border-gray-200">Danh sÃ¡ch áº£nh ({images.length})</h2>
+        <h2 className="text-lg font-semibold p-6 border-b border-gray-200">Danh sách ảnh ({images.length})</h2>
         {images.length === 0 ? (
           <div className="p-12 text-center text-gray-500">
             <svg className="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <p className="text-lg font-medium">ChÆ°a cÃ³ áº£nh nÃ o</p>
-            <p className="text-sm">HÃ£y thÃªm áº£nh Ä‘áº§u tiÃªn cho sáº£n pháº©m nÃ y</p>
+            <p className="text-lg font-medium">Chưa có ảnh nào</p>
+            <p className="text-sm">Hãy thêm ảnh đầu tiên cho sản phẩm này</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
@@ -299,7 +299,7 @@ const AdminProductImages: React.FC = () => {
                 <div className="aspect-square bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
                   <img
                     src={image.url}
-                    alt={`áº¢nh ${image.id}`}
+                    alt={`Ảnh ${image.id}`}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zMCAzMEg3MFY3MEgzMFYzMFoiIGZpbGw9IiNEN0Q5RDEiLz4KPHBhdGggZD0iTTM1IDM1VjY1SDY1VjM1SDM1WiIgZmlsbD0iI0M3Q0QxQyIvPgo8L3N2Zz4K';
@@ -310,7 +310,7 @@ const AdminProductImages: React.FC = () => {
                 <div className="space-y-2 mb-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">ID: {image.id}</span>
-                    <span className="text-xs text-gray-500">Thá»© tá»±: {image.sort_order}</span>
+                    <span className="text-xs text-gray-500">Thứ tự: {image.sort_order}</span>
                   </div>
                   
                   <div className="flex items-center justify-center">
@@ -319,7 +319,7 @@ const AdminProductImages: React.FC = () => {
                         ? 'bg-green-100 text-green-800 border border-green-200' 
                         : 'bg-gray-100 text-gray-600 border border-gray-200'
                     }`}>
-                      {image.is_primary ? 'ðŸ–¼ï¸ áº¢nh chÃ­nh' : 'ðŸ“· áº¢nh phá»¥'}
+                      {image.is_primary ? '🖼️ Ảnh chính' : '📷 Ảnh phụ'}
                     </span>
                   </div>
                 </div>
@@ -329,7 +329,7 @@ const AdminProductImages: React.FC = () => {
                     onClick={() => handleDeleteImage(image.id)}
                     className="flex-1 px-3 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors flex items-center justify-center"
                   >
-                    ðŸ—‘ï¸ XÃ³a
+                    🗑️ Xóa
                   </button>
                 </div>
               </div>
@@ -341,4 +341,4 @@ const AdminProductImages: React.FC = () => {
   );
 };
 
-export default AdminProductImages; 
+export default AdminProductImages;
