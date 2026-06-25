@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { SettingService } from '../../assets/api/settingService';
 import type { SettingsData, GeneralSetting, FooterSetting, SocialSetting } from '../../assets/api/settingService';
 import { useSettings } from '../../context/SettingsContext';
+import AdminBanners from './AdminBanners';
 
 const AdminSettings: React.FC = () => {
   const { refreshSettings } = useSettings();
-  const [activeTab, setActiveTab] = useState<'general' | 'social' | 'footer'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'social' | 'footer' | 'banners'>('general');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -132,7 +133,7 @@ const AdminSettings: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className={`${activeTab === 'banners' ? 'max-w-6xl' : 'max-w-4xl'} mx-auto bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-300`}>
       {/* Title */}
       <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
         <h2 className="text-lg font-semibold text-gray-800">Cấu hình Website</h2>
@@ -170,6 +171,16 @@ const AdminSettings: React.FC = () => {
           }`}
         >
           Chân trang (Footer)
+        </button>
+        <button
+          onClick={() => { setActiveTab('banners'); setMessage(null); }}
+          className={`px-6 py-3 text-sm font-medium border-b-2 transition-all ${
+            activeTab === 'banners'
+              ? 'border-blue-600 text-blue-600 bg-white'
+              : 'border-transparent text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Quản lý Banners
         </button>
       </div>
 
@@ -375,6 +386,12 @@ const AdminSettings: React.FC = () => {
               </button>
             </div>
           </form>
+        )}
+
+        {activeTab === 'banners' && (
+          <div className="p-2">
+            <AdminBanners />
+          </div>
         )}
       </div>
     </div>

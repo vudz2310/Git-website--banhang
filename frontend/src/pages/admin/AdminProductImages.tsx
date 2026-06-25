@@ -1,7 +1,8 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ProductService } from '../../assets/api/productService';
 import { AdminService } from '../../assets/api/adminService';
+import { UploadService } from '../../assets/api/uploadService';
 import type { Product, ProductImage } from '../../assets/api/types';
 
 interface NewImageData {
@@ -97,17 +98,18 @@ const AdminProductImages: React.FC = () => {
     setUploading(true);
     try {
       if (newImage.file) {
-        // TODO: Implement file upload to server
-        console.log('Uploading file:', newImage.file.name);
-        // const uploadedUrl = await uploadImage(newImage.file);
-        // await AdminService.createProductImage(productId, {
-        //   url: uploadedUrl,
-        //   is_primary: newImage.is_primary,
-        //   sort_order: newImage.sort_order
-        // });
-        alert('Chá»©c nÄƒng upload file sáº½ Ä‘Æ°á»£c implement sau!');
+        const uploadRes = await UploadService.uploadSingle(newImage.file);
+        if (uploadRes.success) {
+          await AdminService.createProductImage(productId, {
+            url: uploadRes.url,
+            is_primary: newImage.is_primary,
+            sort_order: newImage.sort_order
+          });
+        } else {
+          throw new Error('Upload ảnh thất bại');
+        }
       } else {
-        // Sá»­ dá»¥ng URL
+        // Sử dụng URL
         await AdminService.createProductImage(productId, {
           url: newImage.url,
           is_primary: newImage.is_primary,

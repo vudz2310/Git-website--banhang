@@ -1,11 +1,18 @@
 import express from "express";
 import authRouter from "./routes/auth.route.js";
 import settingRouter from "./routes/setting.route.js";
+import bannerRouter from "./routes/banner.route.js";
+import uploadRouter from "./routes/upload.route.js";
 import swaggerUi from "swagger-ui-express";
 
 import swaggerSpec from "./docs/swagger.js";
 
 const app = express();
+
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
 
 // Custom CORS Middleware
 app.use((req, res, next) => {
@@ -23,9 +30,12 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 app.use("/api/auth", authRouter);
 app.use("/api/settings", settingRouter);
+app.use("/api/banners", bannerRouter);
+app.use("/api/upload", uploadRouter);
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/health", (req, res) => {

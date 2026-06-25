@@ -72,4 +72,34 @@ export async function httpPut<T>(path: string, body?: any): Promise<T> {
   });
   if (!res.ok) throw new Error(`PUT ${url} failed: ${res.status}`);
   return res.json();
+}
+
+export async function httpDelete<T>(path: string): Promise<T> {
+  const fullUrl = joinUrl(API_BASE_URL, path);
+  const url = new URL(fullUrl);
+  const res = await fetch(url.toString(), {
+    method: 'DELETE',
+    headers: getHeaders(),
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error(`DELETE ${url} failed: ${res.status}`);
+  return res.json();
+}
+
+export async function httpUpload<T>(path: string, formData: FormData): Promise<T> {
+  const fullUrl = joinUrl(API_BASE_URL, path);
+  const url = new URL(fullUrl);
+  const headers: HeadersInit = {};
+  const token = getAuthToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const res = await fetch(url.toString(), {
+    method: 'POST',
+    headers,
+    credentials: 'include',
+    body: formData,
+  });
+  if (!res.ok) throw new Error(`UPLOAD ${url} failed: ${res.status}`);
+  return res.json();
 } 

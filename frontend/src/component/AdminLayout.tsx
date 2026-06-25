@@ -1,7 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { AuthService } from '../assets/api/authService';
-import { BoxIcon, LabelIcon, ListIcon, VoucherIcon, StarIcon, SettingsIcon, UserIcon } from '../components/Icons';
+import React, { useEffect, useState } from "react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { AuthService } from "../assets/api/authService";
+import {
+  BoxIcon,
+  LabelIcon,
+  ListIcon,
+  VoucherIcon,
+  StarIcon,
+  SettingsIcon,
+  UserIcon,
+} from "../components/Icons";
 
 const AdminLayout: React.FC = () => {
   const location = useLocation();
@@ -12,23 +20,23 @@ const AdminLayout: React.FC = () => {
   useEffect(() => {
     const checkAdminAccess = () => {
       const user = AuthService.getUser();
-      
+
       if (!user) {
         // Không có user, redirect về login với thông báo và đường dẫn dự định
-        navigate('/login', { 
+        navigate("/login", {
           replace: true,
-          state: { 
-            message: 'Vui lòng đăng nhập để truy cập trang admin',
-            intendedPath: location.pathname
-          }
+          state: {
+            message: "Vui lòng đăng nhập để truy cập trang admin",
+            intendedPath: location.pathname,
+          },
         });
         return;
       }
 
-      if (user.role !== 'admin') {
+      if (user.role !== "admin") {
         // User không phải admin, redirect về trang chủ
-        alert('Bạn không có quyền truy cập trang admin!');
-        navigate('/', { replace: true });
+        alert("Bạn không có quyền truy cập trang admin!");
+        navigate("/", { replace: true });
         return;
       }
 
@@ -41,15 +49,16 @@ const AdminLayout: React.FC = () => {
   }, [navigate, location.pathname]);
 
   const menuItems = [
-    { path: '/admin/products', label: 'Sản phẩm', icon: BoxIcon },
-    { path: '/admin/categories', label: 'Danh mục', icon: LabelIcon },
-    { path: '/admin/users', label: 'Users', icon: UserIcon },
-    { path: '/admin/orders', label: 'Đơn hàng', icon: ListIcon },
-    { path: '/admin/vouchers', label: 'Vouchers', icon: VoucherIcon },
-    { path: '/admin/reviews', label: 'Đánh giá', icon: StarIcon },
-    { path: '/admin/inventory', label: 'Kho hàng', icon: ListIcon },
-    { path: '/admin/variants', label: 'Biến thể SP', icon: SettingsIcon },
-    { path: '/admin/settings', label: 'Cấu hình', icon: SettingsIcon },
+    { path: "/admin/products", label: "Sản phẩm", icon: BoxIcon },
+    { path: "/admin/categories", label: "Danh mục", icon: LabelIcon },
+    { path: "/admin/users", label: "Users", icon: UserIcon },
+    { path: "/admin/orders", label: "Đơn hàng", icon: ListIcon },
+    { path: "/admin/vouchers", label: "Vouchers", icon: VoucherIcon },
+    { path: "/admin/reviews", label: "Đánh giá", icon: StarIcon },
+    { path: "/admin/inventory", label: "Kho hàng", icon: ListIcon },
+    { path: "/admin/variants", label: "Biến thể SP", icon: SettingsIcon },
+    { path: "/admin/settings", label: "Cấu hình", icon: SettingsIcon },
+    // { path: '/admin/banners', label: 'Banners', icon: BoxIcon },
   ];
 
   // Hiển thị loading khi đang kiểm tra quyền
@@ -76,14 +85,16 @@ const AdminLayout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">Admin Dashboard</h1>
+              <h1 className="text-xl font-semibold text-gray-900">
+                Admin Dashboard
+              </h1>
               <span className="ml-3 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
                 Admin
               </span>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">
-                Xin chào, {AuthService.getUser()?.full_name || 'Admin'}
+                Xin chào, {AuthService.getUser()?.full_name || "Admin"}
               </span>
               <Link to="/" className="text-gray-500 hover:text-gray-700">
                 ← Về trang chủ
@@ -106,11 +117,13 @@ const AdminLayout: React.FC = () => {
                     to={item.path}
                     className={`${
                       isActive
-                        ? 'bg-blue-100 text-blue-900 border-r-2 border-blue-500'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        ? "bg-blue-100 text-blue-900 border-r-2 border-blue-500"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`}
                   >
-                    {React.createElement(item.icon, { className: "mr-3 w-5 h-5" })}
+                    {React.createElement(item.icon, {
+                      className: "mr-3 w-5 h-5",
+                    })}
                     {item.label}
                   </Link>
                 );
@@ -128,4 +141,4 @@ const AdminLayout: React.FC = () => {
   );
 };
 
-export default AdminLayout; 
+export default AdminLayout;

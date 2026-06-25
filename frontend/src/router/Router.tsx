@@ -30,6 +30,7 @@ import AdminReviewList from '../pages/admin/AdminReviewList';
 import AdminInventoryList from '../pages/admin/AdminInventoryList';
 import AdminProductVariantList from '../pages/admin/AdminProductVariantList';
 import AdminSettings from '../pages/admin/AdminSettings';
+import AdminBanners from '../pages/admin/AdminBanners';
 
 const AppRouter: React.FC = () => {
   return (
@@ -68,6 +69,7 @@ const AppRouter: React.FC = () => {
           <Route path="inventory" element={<AdminInventoryList />} />
           <Route path="variants" element={<AdminProductVariantList />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="banners" element={<AdminBanners />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

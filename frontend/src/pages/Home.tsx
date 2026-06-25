@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSettings } from '../context/SettingsContext';
 import { ProductService } from '../assets/api/productService';
+import { BannerService } from '../assets/api/bannerService';
+import type { Banner } from '../assets/api/bannerService';
 import type { Product } from '../assets/api/types';
 import { 
   FlameIcon, 
@@ -20,6 +22,30 @@ const Home: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [newProducts, setNewProducts] = useState<Product[]>([]);
   const [topRatedProducts, setTopRatedProducts] = useState<Product[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const loadBanners = async () => {
+      try {
+        const res = await BannerService.getActive();
+        if (res.success && res.data.length > 0) {
+          setBanners(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to load active banners:', err);
+      }
+    };
+    loadBanners();
+  }, []);
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [banners]);
 
   useEffect(() => {
     if (settings) {
@@ -99,23 +125,76 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12 sm:py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
-            Chào mừng đến với {settings.general.site_name}
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 px-2">
-            {settings.general.seo_description}
-          </p>
-          <Link 
-            to="/products" 
-            className="inline-block bg-white text-blue-600 px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base"
+      {/* Banner Carousel or Hero Section Fallback */}
+      {banners.length > 0 ? (
+        <section className="relative overflow-hidden w-full h-[320px] md:h-[480px] bg-gray-900 group animate-fadeIn">
+          <div 
+            className="flex transition-transform duration-700 ease-in-out h-full"
+            style={{ transform: `translateX(-${currentSlide * 100}%)`, width: `${banners.length * 100}%` }}
           >
-            Mua sắm ngay
-          </Link>
-        </div>
-      </section>
+            {banners.map((banner) => (
+              <div key={banner._id} className="relative w-full h-full flex-shrink-0">
+                <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6 md:p-16 text-white">
+                  <h2 className="text-xl md:text-4xl font-extrabold mb-2 md:mb-4 tracking-tight drop-shadow-md">{banner.title}</h2>
+                  {banner.redirectUrl && (
+                    <Link 
+                      to={banner.redirectUrl} 
+                      className="inline-block self-start px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                    >
+                      Khám phá ngay
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          {banners.length > 1 && (
+            <>
+              <button 
+                onClick={() => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length)}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 font-bold text-lg"
+              >
+                &#10094;
+              </button>
+              <button 
+                onClick={() => setCurrentSlide((prev) => (prev + 1) % banners.length)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 font-bold text-lg"
+              >
+                &#10095;
+              </button>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+                {banners.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentSlide(idx)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                      idx === currentSlide ? 'bg-blue-600 w-6' : 'bg-white/60'
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+      ) : (
+        <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12 sm:py-20">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
+              Chào mừng đến với {settings.general.site_name}
+            </h1>
+            <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 px-2">
+              {settings.general.seo_description}
+            </p>
+            <Link 
+              to="/products" 
+              className="inline-block bg-white text-blue-600 px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base"
+            >
+              Mua sắm ngay
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Categories - ẩn trên màn hình điện thoại */}
       <section className="hidden md:block py-8 sm:py-12 md:py-16 bg-white">
