@@ -59,4 +59,17 @@ export async function httpPost<T>(path: string, body?: any): Promise<T> {
   });
   if (!res.ok) throw new Error(`POST ${url} failed: ${res.status}`);
   return res.json();
+}
+
+export async function httpPut<T>(path: string, body?: any): Promise<T> {
+  const fullUrl = joinUrl(API_BASE_URL, path);
+  const url = new URL(fullUrl);
+  const res = await fetch(url.toString(), {
+    method: 'PUT',
+    headers: getHeaders(),
+    credentials: 'include',
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) throw new Error(`PUT ${url} failed: ${res.status}`);
+  return res.json();
 } 

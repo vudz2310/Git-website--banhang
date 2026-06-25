@@ -1,5 +1,6 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useSettings } from '../context/SettingsContext';
 import { ProductService } from '../assets/api/productService';
 import type { Product } from '../assets/api/types';
 import { 
@@ -15,9 +16,23 @@ import {
 } from '../components/Icons';
 
 const Home: React.FC = () => {
+  const { settings } = useSettings();
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [newProducts, setNewProducts] = useState<Product[]>([]);
   const [topRatedProducts, setTopRatedProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    if (settings) {
+      document.title = settings.general.seo_title || settings.general.site_name;
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.setAttribute('name', 'description');
+        document.head.appendChild(metaDesc);
+      }
+      metaDesc.setAttribute('content', settings.general.seo_description);
+    }
+  }, [settings]);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -87,8 +102,12 @@ const Home: React.FC = () => {
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12 sm:py-20">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">Chào mừng đến với ShopOnline</h1>
-          <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 px-2">Khám phá những sản phẩm công nghệ tốt nhất với giá cả hợp lý</p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
+            Chào mừng đến với {settings.general.site_name}
+          </h1>
+          <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 px-2">
+            {settings.general.seo_description}
+          </p>
           <Link 
             to="/products" 
             className="inline-block bg-white text-blue-600 px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base"

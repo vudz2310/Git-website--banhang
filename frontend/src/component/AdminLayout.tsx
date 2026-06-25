@@ -49,6 +49,7 @@ const AdminLayout: React.FC = () => {
     { path: '/admin/reviews', label: 'Đánh giá', icon: StarIcon },
     { path: '/admin/inventory', label: 'Kho hàng', icon: ListIcon },
     { path: '/admin/variants', label: 'Biến thể SP', icon: SettingsIcon },
+    { path: '/admin/settings', label: 'Cấu hình', icon: SettingsIcon },
   ];
 
   // Hiển thị loading khi đang kiểm tra quyền

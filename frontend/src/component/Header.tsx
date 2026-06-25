@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthService } from "../assets/api/authService";
 import { CartService } from "../assets/api/cartService";
@@ -11,6 +11,7 @@ import {
   XIcon,
 } from "../components/Icons";
 import { API_BASE_URL } from "../assets/api/http";
+import { useSettings } from "../context/SettingsContext";
 
 const getAvatarUrl = (avatar: string | null | undefined): string => {
   if (!avatar) return "";
@@ -20,6 +21,7 @@ const getAvatarUrl = (avatar: string | null | undefined): string => {
 };
 
 const Header: React.FC = () => {
+  const { settings } = useSettings();
   const [user, setUser] = useState<User | null>(null);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -90,8 +92,11 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="text-xl sm:text-2xl font-bold text-blue-600">
-            Shop Điện thoại VIP
+          <Link to="/" className="flex items-center space-x-2 text-xl sm:text-2xl font-bold text-blue-600">
+            {settings.general.logo_url ? (
+              <img src={settings.general.logo_url} alt={settings.general.site_name} className="h-8 object-contain" />
+            ) : null}
+            <span>{settings.general.site_name}</span>
           </Link>
 
           {/* Navigation */}

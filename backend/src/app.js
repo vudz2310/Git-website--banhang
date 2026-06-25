@@ -1,5 +1,6 @@
 import express from "express";
 import authRouter from "./routes/auth.route.js";
+import settingRouter from "./routes/setting.route.js";
 import swaggerUi from "swagger-ui-express";
 
 import swaggerSpec from "./docs/swagger.js";
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 app.use("/api/auth", authRouter);
+app.use("/api/settings", settingRouter);
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/health", (req, res) => {
