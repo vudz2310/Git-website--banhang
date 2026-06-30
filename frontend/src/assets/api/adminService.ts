@@ -1,21 +1,21 @@
 import { httpGet, httpPost } from './http';
-import type { Product, Category, User, Order, ProductImage } from './types';
+import type { Product, Category, User, Order, ProductImage, ID } from './types';
 
 export const AdminService = {
   // Products
-  async createProduct(data: Partial<Product>): Promise<{ success: boolean; id: number }> {
-    return httpPost<{ success: boolean; id: number }>('products', data);
+  async createProduct(data: Partial<Product>): Promise<{ success: boolean; id: ID }> {
+    return httpPost<{ success: boolean; id: ID }>('products', data);
   },
 
   async getProducts(): Promise<{ data: Product[] }> {
     return httpGet<{ data: Product[] }>('products');
   },
 
-  async updateProduct(id: number, data: Partial<Product>): Promise<{ success: boolean }> {
+  async updateProduct(id: ID, data: Partial<Product>): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`products/${id}`, { ...data, _method: 'PUT' });
   },
 
-  async deleteProduct(id: number): Promise<{ success: boolean }> {
+  async deleteProduct(id: ID): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`products/${id}`, { _method: 'DELETE' });
   },
 
@@ -24,24 +24,24 @@ export const AdminService = {
     return httpGet<{ data: Category[] }>('categories');
   },
 
-  async createCategory(data: Partial<Category>): Promise<{ success: boolean; id: number }> {
-    return httpPost<{ success: boolean; id: number }>('categories', data);
+  async createCategory(data: Partial<Category>): Promise<{ success: boolean; id: ID }> {
+    return httpPost<{ success: boolean; id: ID }>('categories', data);
   },
 
-  async updateCategory(id: number, data: Partial<Category>): Promise<{ success: boolean }> {
+  async updateCategory(id: ID, data: Partial<Category>): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`categories/${id}`, { ...data, _method: 'PUT' });
   },
 
-  async deleteCategory(id: number): Promise<{ success: boolean }> {
+  async deleteCategory(id: ID): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`categories/${id}`, { _method: 'DELETE' });
   },
 
   // Product Images
-  async createProductImage(productId: number, data: Partial<ProductImage>): Promise<{ success: boolean; id: number }> {
-    return httpPost<{ success: boolean; id: number }>(`products/${productId}/images`, data);
+  async createProductImage(productId: ID, data: Partial<ProductImage>): Promise<{ success: boolean; id: ID }> {
+    return httpPost<{ success: boolean; id: ID }>(`products/${productId}/images`, data);
   },
 
-  async updateProductImage(imageId: number, data: Partial<ProductImage>): Promise<{ success: boolean }> {
+  async updateProductImage(imageId: ID, data: Partial<ProductImage>): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`product-images/${imageId}`, { ...data, _method: 'PUT' });
   },
 
@@ -81,7 +81,7 @@ export const AdminService = {
     return response.json();
   },
 
-  async deleteProductImage(productId: number, imageId: number): Promise<{ success: boolean }> {
+  async deleteProductImage(productId: ID, imageId: ID): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`products/${productId}/images/${imageId}`, { _method: 'DELETE' });
   },
 
@@ -90,16 +90,16 @@ export const AdminService = {
     return httpGet<{ data: User[] }>('users');
   },
 
-  async createUser(data: Partial<User> & { password: string }): Promise<{ success: boolean; id: number }> {
+  async createUser(data: Partial<User> & { password: string }): Promise<{ success: boolean; id: ID }> {
     const { password, ...userData } = data;
-    return httpPost<{ success: boolean; id: number }>('users', { ...userData, password_hash: password });
+    return httpPost<{ success: boolean; id: ID }>('users', { ...userData, password_hash: password });
   },
 
-  async updateUser(id: number, data: Partial<User>): Promise<{ success: boolean }> {
+  async updateUser(id: ID, data: Partial<User>): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`users/${id}`, { ...data, _method: 'PUT' });
   },
 
-  async deleteUser(id: number): Promise<{ success: boolean }> {
+  async deleteUser(id: ID): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`users/${id}`, { _method: 'DELETE' });
   },
 
@@ -108,46 +108,46 @@ export const AdminService = {
     return httpGet<{ data: Order[] }>('orders');
   },
 
-  async updateOrderStatus(id: number, status: string): Promise<{ success: boolean }> {
+  async updateOrderStatus(id: ID, status: string): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`orders/${id}/status`, { status });
   },
 
-  async updatePaymentStatus(id: number, payment_status: string): Promise<{ success: boolean }> {
+  async updatePaymentStatus(id: ID, payment_status: string): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`orders/${id}/payment-status`, { payment_status });
   },
 
-  async updateShippingStatus(id: number, shipping_status: string): Promise<{ success: boolean }> {
+  async updateShippingStatus(id: ID, shipping_status: string): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`orders/${id}/shipping-status`, { shipping_status });
   },
 
-  async deleteOrder(id: number): Promise<{ success: boolean }> {
+  async deleteOrder(id: ID): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`orders/${id}`, { _method: 'DELETE' });
   },
 
   // Vouchers
-  async createVoucher(data: any): Promise<{ success: boolean; id: number }> {
-    return httpPost<{ success: boolean; id: number }>('vouchers', data);
+  async createVoucher(data: any): Promise<{ success: boolean; id: ID }> {
+    return httpPost<{ success: boolean; id: ID }>('vouchers', data);
   },
 
-  async updateVoucher(id: number, data: any): Promise<{ success: boolean }> {
+  async updateVoucher(id: ID, data: any): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`vouchers/${id}`, { ...data, _method: 'PUT' });
   },
 
-  async deleteVoucher(id: number): Promise<{ success: boolean }> {
+  async deleteVoucher(id: ID): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`vouchers/${id}`, { _method: 'DELETE' });
   },
 
   // Reviews
-  async updateReviewStatus(id: number, status: string): Promise<{ success: boolean }> {
+  async updateReviewStatus(id: ID, status: string): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`reviews/${id}/status`, { status });
   },
 
-  async deleteReview(id: number): Promise<{ success: boolean }> {
+  async deleteReview(id: ID): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`reviews/${id}`, { _method: 'DELETE' });
   },
 
   // Inventory
-  async updateInventory(variantId: number, quantity: number): Promise<{ success: boolean }> {
+  async updateInventory(variantId: ID, quantity: number): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`inventory/${variantId}`, { quantity });
   },
 
@@ -156,15 +156,15 @@ export const AdminService = {
     return httpGet<{ data: any[] }>('product-variants');
   },
 
-  async createProductVariant(data: any): Promise<{ success: boolean; id: number }> {
-    return httpPost<{ success: boolean; id: number }>('product-variants', data);
+  async createProductVariant(data: any): Promise<{ success: boolean; id: ID }> {
+    return httpPost<{ success: boolean; id: ID }>('product-variants', data);
   },
 
-  async updateProductVariant(id: number, data: any): Promise<{ success: boolean }> {
+  async updateProductVariant(id: ID, data: any): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`product-variants/${id}`, { ...data, _method: 'PUT' });
   },
 
-  async deleteProductVariant(id: number): Promise<{ success: boolean }> {
+  async deleteProductVariant(id: ID): Promise<{ success: boolean }> {
     return httpPost<{ success: boolean }>(`product-variants/${id}`, { _method: 'DELETE' });
   },
 }; 

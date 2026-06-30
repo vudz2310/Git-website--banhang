@@ -1,5 +1,5 @@
 import { httpGet, httpPost, API_BASE_URL } from './http';
-import type { CartItem, Cart } from './types';
+import type { CartItem, Cart, ID } from './types';
 
 // Interface mở rộng để bao gồm items
 interface CartWithItems extends Cart {
@@ -31,7 +31,7 @@ export class CartService {
   }
 
   // Thêm sản phẩm vào giỏ hàng
-  static async addItem(variantId: number, quantity: number, price: number): Promise<CartItem> {
+  static async addItem(variantId: ID, quantity: number, price: number): Promise<CartItem> {
     try {
       const res = await httpPost<CartItem>('cart/items', {
         variant_id: variantId,
@@ -46,7 +46,7 @@ export class CartService {
   }
 
   // Cập nhật số lượng sản phẩm
-  static async updateQuantity(itemId: number, quantity: number): Promise<CartItem> {
+  static async updateQuantity(itemId: ID, quantity: number): Promise<CartItem> {
     try {
       const res = await httpPost<CartItem>(`cart/items/${itemId}`, {
         quantity
@@ -59,7 +59,7 @@ export class CartService {
   }
 
   // Xóa sản phẩm khỏi giỏ hàng
-  static async removeItem(itemId: number): Promise<void> {
+  static async removeItem(itemId: ID): Promise<void> {
     try {
       // Sử dụng DELETE method thay vì POST với _method
       const response = await fetch(`${API_BASE_URL}/cart/items/${itemId}`, {

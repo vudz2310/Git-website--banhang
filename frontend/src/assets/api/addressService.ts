@@ -1,8 +1,9 @@
 import { httpGet, httpPost } from './http';
+import type { ID } from './types';
 
 export type Address = {
-  id: number;
-  user_id: number;
+  id: ID;
+  user_id: ID;
   full_name: string;
   phone: string;
   line1: string;
@@ -14,16 +15,16 @@ export type Address = {
 };
 
 export class AddressService {
-  static async getDefaultAddress(userId: number): Promise<Address | null> {
+  static async getDefaultAddress(userId: ID): Promise<Address | null> {
     const resp = await httpGet<{ data: Address | null }>(`users/${userId}/address-default`);
     return resp?.data || null;
   }
 
   static async saveDefaultAddress(
-    userId: number,
+    userId: ID,
     payload: Pick<Address, 'full_name' | 'phone' | 'line1' | 'ward' | 'district' | 'city'>
-  ): Promise<{ success: boolean; id: number }> {
-    return httpPost<{ success: boolean; id: number }>(`users/${userId}/address-default`, payload);
+  ): Promise<{ success: boolean; id: ID }> {
+    return httpPost<{ success: boolean; id: ID }>(`users/${userId}/address-default`, payload);
   }
 }
 

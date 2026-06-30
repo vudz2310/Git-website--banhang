@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ProductService } from '../../assets/api/productService';
 import { AdminService } from '../../assets/api/adminService';
 import { CategoryService } from '../../assets/api/categoryService';
-import type { Product, Category, ProductImage } from '../../assets/api/types';
+import type { Product, Category, ProductImage, ID } from '../../assets/api/types';
 import { Link } from 'react-router-dom';
 import { EditIcon, TrashIcon, StarIcon, RefreshIcon, DocumentIcon, FileIcon, PlusIcon, SaveIcon } from '../../components/Icons';
 
@@ -17,7 +17,7 @@ interface ProductFormData {
   product_img_title: string;
   has_images: boolean;
   brand: string;
-  category_id: number | null;
+  category_id: ID | null;
   is_active: boolean;
   primary_image_file: File | null;
 }
@@ -199,7 +199,7 @@ const AdminProductList: React.FC = () => {
     }
   };
 
-  const handleDelete = async (productId: number) => {
+  const handleDelete = async (productId: ID) => {
     if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
     
     try {
@@ -346,7 +346,7 @@ const AdminProductList: React.FC = () => {
     }
   };
 
-  const deleteProductImage = async (imageId: number) => {
+  const deleteProductImage = async (imageId: ID) => {
     if (!editingProduct) return;
     
     if (!confirm('Bạn có chắc muốn xóa ảnh này?')) return;
@@ -364,7 +364,7 @@ const AdminProductList: React.FC = () => {
     }
   };
 
-  const updateProductImagePrimary = async (imageId: number, isPrimary: boolean) => {
+  const updateProductImagePrimary = async (imageId: ID, isPrimary: boolean) => {
     if (!editingProduct) return;
     
     try {
@@ -681,7 +681,7 @@ const AdminProductList: React.FC = () => {
                     <label className="block text-sm font-medium mb-1">Danh mục</label>
                     <select
                       value={formData.category_id || ''}
-                      onChange={(e) => setFormData({...formData, category_id: e.target.value ? Number(e.target.value) : null})}
+                      onChange={(e) => setFormData({...formData, category_id: e.target.value || null})}
                       className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="">Chọn danh mục</option>

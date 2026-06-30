@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AdminService } from '../../assets/api/adminService';
-import type { Category } from '../../assets/api/types';
+import type { Category, ID } from '../../assets/api/types';
 
 const AdminCategoryList: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -11,7 +11,7 @@ const AdminCategoryList: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
-    parent_id: null as number | null,
+    parent_id: null as ID | null,
     sort_order: 0
   });
 
@@ -101,7 +101,7 @@ const AdminCategoryList: React.FC = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (categoryId: number) => {
+  const handleDelete = async (categoryId: ID) => {
     if (!confirm('Bạn có chắc muốn xóa danh mục này?')) return;
     
     try {
@@ -124,7 +124,7 @@ const AdminCategoryList: React.FC = () => {
     setShowForm(false);
   };
 
-  const getParentName = (parentId: number | null | undefined) => {
+  const getParentName = (parentId: ID | null | undefined) => {
     if (!parentId) return 'Danh mục gốc';
     const parent = categories.find(c => c.id === parentId);
     return parent ? parent.name : 'Không xác định';
@@ -195,7 +195,7 @@ const AdminCategoryList: React.FC = () => {
                 <label className="block text-sm font-medium mb-1">Danh mục cha</label>
                 <select
                   value={formData.parent_id || ''}
-                  onChange={(e) => setFormData({...formData, parent_id: e.target.value ? Number(e.target.value) : null})}
+                  onChange={(e) => setFormData({...formData, parent_id: e.target.value || null})}
                   className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Danh mục gốc</option>

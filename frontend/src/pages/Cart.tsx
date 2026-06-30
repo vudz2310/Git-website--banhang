@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CartService } from '../assets/api/cartService';
-import type { CartItem, ProductVariant, Product } from '../assets/api/types';
+import type { CartItem, ProductVariant, Product, ID } from '../assets/api/types';
 
 interface CartItemWithDetails extends CartItem {
   variant?: ProductVariant;
@@ -22,7 +22,7 @@ const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItemWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [updating, setUpdating] = useState<number | null>(null);
+  const [updating, setUpdating] = useState<ID | null>(null);
 
   useEffect(() => {
     loadCart();
@@ -40,7 +40,7 @@ const Cart: React.FC = () => {
     }
   };
 
-  const updateQuantity = async (itemId: number, newQuantity: number) => {
+  const updateQuantity = async (itemId: ID, newQuantity: number) => {
     if (newQuantity < 1) return;
     
     setUpdating(itemId);
@@ -58,7 +58,7 @@ const Cart: React.FC = () => {
     }
   };
 
-  const removeItem = async (itemId: number) => {
+  const removeItem = async (itemId: ID) => {
     if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
     
     try {

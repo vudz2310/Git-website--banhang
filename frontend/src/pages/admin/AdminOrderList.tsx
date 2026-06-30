@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { Order, OrderItem, OrderItemWithDetails } from '../../assets/api/types';
+import type { Order, OrderItem, OrderItemWithDetails, ID } from '../../assets/api/types';
 import { AdminService } from '../../assets/api/adminService';
 import { OrderService } from '../../assets/api/orderService';
 import { RefreshIcon } from '../../components/Icons';
@@ -104,7 +104,7 @@ const AdminOrderList: React.FC = () => {
     loadOrders();
   }, []);
 
-  const handleStatusChange = async (orderId: number, newStatus: string) => {
+  const handleStatusChange = async (orderId: ID, newStatus: string) => {
     try {
       await AdminService.updateOrderStatus(orderId, newStatus);
       loadOrders();
@@ -113,7 +113,7 @@ const AdminOrderList: React.FC = () => {
     }
   };
 
-  const handlePaymentStatusChange = async (orderId: number, newPaymentStatus: string) => {
+  const handlePaymentStatusChange = async (orderId: ID, newPaymentStatus: string) => {
     try {
       await AdminService.updatePaymentStatus(orderId, newPaymentStatus);
       loadOrders();
@@ -122,7 +122,7 @@ const AdminOrderList: React.FC = () => {
     }
   };
 
-  const handleShippingStatusChange = async (orderId: number, newShippingStatus: string) => {
+  const handleShippingStatusChange = async (orderId: ID, newShippingStatus: string) => {
     try {
       await AdminService.updateShippingStatus(orderId, newShippingStatus);
       loadOrders();
@@ -131,7 +131,7 @@ const AdminOrderList: React.FC = () => {
     }
   };
 
-  const handleDelete = async (orderId: number) => {
+  const handleDelete = async (orderId: ID) => {
     if (!confirm('Bạn có chắc muốn xóa order này?')) return;
     try {
       await AdminService.deleteOrder(orderId);
@@ -141,7 +141,7 @@ const AdminOrderList: React.FC = () => {
     }
   };
 
-  const loadOrderItems = async (orderId: number) => {
+  const loadOrderItems = async (orderId: ID) => {
     try {
       setLoadingItems(true);
       const items = await OrderService.getOrderItemsWithDetails(orderId);

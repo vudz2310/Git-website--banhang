@@ -1,6 +1,6 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AdminService } from '../../assets/api/adminService';
-import type { User } from '../../assets/api/types';
+import type { User, ID } from '../../assets/api/types';
 
 const AdminUserList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -91,7 +91,7 @@ const AdminUserList: React.FC = () => {
     setShowAddForm(true);
   };
 
-  const handleDelete = async (userId: number) => {
+  const handleDelete = async (userId: ID) => {
     if (!confirm('Bạn có chắc muốn xóa user này?')) return;
     
     try {

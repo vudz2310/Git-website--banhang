@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { OrderService } from '../assets/api/orderService';
 import { AuthService } from '../assets/api/authService';
-import type { Order, OrderItemWithDetails } from '../assets/api/types';
+import type { Order, OrderItemWithDetails, ID } from '../assets/api/types';
 import { BoxIcon } from '../components/Icons';
 
 const Orders: React.FC = () => {
@@ -35,7 +35,7 @@ const Orders: React.FC = () => {
     loadOrders(user.id);
   }, [navigate]);
 
-  const loadOrders = async (userId: number) => {
+  const loadOrders = async (userId: ID) => {
     try {
       console.log('Loading orders for user:', userId);
       const response = await OrderService.getUserOrders(userId);
@@ -48,7 +48,7 @@ const Orders: React.FC = () => {
     }
   };
 
-  const loadOrderItems = async (orderId: number) => {
+  const loadOrderItems = async (orderId: ID) => {
     try {
       console.log('Loading order items for order:', orderId);
       const items = await OrderService.getOrderItemsWithDetails(orderId);

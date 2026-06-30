@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SettingService } from '../../assets/api/settingService';
-import type { SettingsData, GeneralSetting, FooterSetting, SocialSetting } from '../../assets/api/settingService';
+import type { GeneralSetting, FooterSetting, SocialSetting } from '../../assets/api/settingService';
 import { useSettings } from '../../context/SettingsContext';
 import AdminBanners from './AdminBanners';
 
