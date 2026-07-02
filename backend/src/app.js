@@ -6,6 +6,9 @@ import uploadRouter from "./routes/upload.route.js";
 import productRouter from "./routes/product.route.js";
 import categoryRouter from "./routes/category.route.js";
 import cartRouter from "./routes/cart.route.js";
+import orderRouter from "./routes/order.route.js";
+import voucherRouter from "./routes/voucher.route.js";
+import reviewRouter from "./routes/review.route.js";
 import swaggerUi from "swagger-ui-express";
 
 import swaggerSpec from "./docs/swagger.js";
@@ -42,6 +45,10 @@ app.use("/api/upload", uploadRouter);
 app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/cart", cartRouter);
+app.use("/api/orders", orderRouter);
+app.use("/api", voucherRouter);
+app.use("/api", reviewRouter);
+
 
 
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
