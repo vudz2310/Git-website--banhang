@@ -3,6 +3,8 @@ import authRouter from "./routes/auth.route.js";
 import settingRouter from "./routes/setting.route.js";
 import bannerRouter from "./routes/banner.route.js";
 import uploadRouter from "./routes/upload.route.js";
+import productRouter from "./routes/product.route.js";
+import categoryRouter from "./routes/category.route.js";
 import swaggerUi from "swagger-ui-express";
 
 import swaggerSpec from "./docs/swagger.js";
@@ -36,6 +38,9 @@ app.use("/api/auth", authRouter);
 app.use("/api/settings", settingRouter);
 app.use("/api/banners", bannerRouter);
 app.use("/api/upload", uploadRouter);
+app.use("/api/products", productRouter);
+app.use("/api/categories", categoryRouter);
+
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/health", (req, res) => {

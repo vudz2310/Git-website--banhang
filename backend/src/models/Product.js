@@ -9,10 +9,12 @@ const productSchema = new mongoose.Schema({
     product_img_alt: { type: String, default: '' },
     product_img_title: { type: String, default: '' },
     brand: { type: String, default: '' },
+    category_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', default: null },
     is_active: { type: Boolean, default: true },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }
 });
+
 
 productSchema.pre('save', function(next) {
     this.updated_at = new Date();
