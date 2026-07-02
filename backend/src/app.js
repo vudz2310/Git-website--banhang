@@ -9,6 +9,7 @@ import cartRouter from "./routes/cart.route.js";
 import orderRouter from "./routes/order.route.js";
 import voucherRouter from "./routes/voucher.route.js";
 import reviewRouter from "./routes/review.route.js";
+import addressRouter from "./routes/address.route.js";
 import swaggerUi from "swagger-ui-express";
 
 import swaggerSpec from "./docs/swagger.js";
@@ -46,8 +47,10 @@ app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/users", addressRouter);
 app.use("/api", voucherRouter);
 app.use("/api", reviewRouter);
+
 
 
 

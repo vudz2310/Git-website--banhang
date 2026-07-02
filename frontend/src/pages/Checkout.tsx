@@ -115,6 +115,7 @@ const Checkout: React.FC = () => {
   const [provinceCode, setProvinceCode] = useState<number | null>(null);
   const [districtCode, setDistrictCode] = useState<number | null>(null);
   const [placesLoading, setPlacesLoading] = useState(false);
+  const [addressWarning, setAddressWarning] = useState<string | null>(null);
   const [form, setForm] = useState<CheckoutForm>({
     fullName: '',
     email: '',
@@ -154,14 +155,54 @@ const Checkout: React.FC = () => {
     };
   }, []);
 
-  // Nếu user đã có city (từ địa chỉ mặc định), map sang provinceCode để load district gợi ý
+  // Tự động phát hiện và chuẩn hóa tỉnh thành, quận huyện đã sáp nhập (Hà Tây -> Hà Nội, Quận 2/9/Thủ Đức -> TP Thủ Đức)
+  useEffect(() => {
+    if (!form.city && !form.district) {
+      setAddressWarning(null);
+      return;
+    }
+
+    const result = AddressService.gitAddress(form.city, form.district, form.ward, form.address);
+    if (result.changed) {
+      setForm(prev => ({
+        ...prev,
+        city: result.city,
+        district: result.district,
+        ward: result.ward,
+        address: result.address
+      }));
+      setAddressWarning(result.notes || null);
+    } else {
+      const cleanCity = form.city.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const cleanDist = form.district.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const hasOldHata = cleanCity.includes('ha tay');
+      const hasOldDist = cleanDist.includes('quan 2') || cleanDist.includes('quan 9') || (cleanDist.includes('thu duc') && !cleanDist.includes('thanh pho thu duc'));
+      
+      if (!hasOldHata && !hasOldDist) {
+        setAddressWarning(null);
+      }
+    }
+  }, [form.city, form.district, form.ward, form.address]);
+
+  // Đồng bộ provinceCode theo form.city
   useEffect(() => {
     if (!provinces.length) return;
-    if (provinceCode) return;
-    if (!form.city) return;
+    if (!form.city) {
+      setProvinceCode(null);
+      return;
+    }
     const match = findPlaceByName(provinces, form.city);
-    if (match) setProvinceCode(match.code);
-  }, [provinces, form.city, provinceCode]);
+    if (match) {
+      if (match.code !== provinceCode) {
+        setProvinceCode(match.code);
+        setDistrictCode(null);
+        setDistricts([]);
+        setWards([]);
+      }
+    } else {
+      setProvinceCode(null);
+    }
+  }, [provinces, form.city]);
 
   // Load Quận/Huyện theo provinceCode
   useEffect(() => {
@@ -186,9 +227,11 @@ const Checkout: React.FC = () => {
         setDistricts(list);
         setWards([]);
 
-        // Nếu đã có district text, map sang districtCode để load ward gợi ý
+        // Đồng bộ districtCode nếu đã có tên Quận/Huyện trong form
         const matchDistrict = findPlaceByName(list, form.district);
-        if (matchDistrict) setDistrictCode(matchDistrict.code);
+        if (matchDistrict) {
+          setDistrictCode(matchDistrict.code);
+        }
       } catch (e) {
         console.log('Load districts failed (ignore):', e);
       } finally {
@@ -198,7 +241,25 @@ const Checkout: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [provinceCode, form.district]);
+  }, [provinceCode]);
+
+  // Đồng bộ districtCode theo form.district
+  useEffect(() => {
+    if (!districts.length) return;
+    if (!form.district) {
+      setDistrictCode(null);
+      return;
+    }
+    const match = findPlaceByName(districts, form.district);
+    if (match) {
+      if (match.code !== districtCode) {
+        setDistrictCode(match.code);
+        setWards([]);
+      }
+    } else {
+      setDistrictCode(null);
+    }
+  }, [districts, form.district]);
 
   // Load Phường/Xã theo districtCode
   useEffect(() => {
@@ -229,6 +290,7 @@ const Checkout: React.FC = () => {
       cancelled = true;
     };
   }, [districtCode]);
+
 
   // Khởi tạo Google Places Autocomplete cho trường địa chỉ
   useEffect(() => {
@@ -995,6 +1057,16 @@ const Checkout: React.FC = () => {
                   {/* Sử dụng gợi ý từ Google Maps - Tự động điền Tỉnh/Thành phố, Quận/Huyện, Phường/Xã */}
                 </p>
               </div>
+
+              {addressWarning && (
+                <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-sm flex items-start">
+                  <WarningIcon className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5 text-amber-500" />
+                  <div>
+                    <strong>Cập nhật đơn vị hành chính mới nhất:</strong> {addressWarning}
+                  </div>
+                </div>
+              )}
+
 
               
 
