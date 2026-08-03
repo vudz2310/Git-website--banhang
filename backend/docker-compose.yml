@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # Dịch vụ Cơ sở dữ liệu MongoDB
+  db:
+    image: mongo:6.0
+    container_name: elitemart_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - elitemart_db_data:/data/db
+
+  # Dịch vụ Backend Node.js
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: elitemart_backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://db:27017/ecommerce
+      - JWT_SECRET=super_secret_jwt_key_12345
+    depends_on:
+      - db
+    volumes:
+      - ./uploads:/app/uploads
+
+volumes:
+  elitemart_db_data:
