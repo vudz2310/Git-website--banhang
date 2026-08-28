@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from '../../../api/http';
+import { httpGet, httpPost, httpPut, httpDelete } from '../../../api/http';
+import { useToast } from '../../../context';
 import { AdminModal } from '../components/AdminModal';
 import { FormInput, FormSelect, FormTextarea, FormSwitch } from '../components/FormFields';
 import { AdminConfirmModal } from '../components/AdminConfirmModal';
@@ -29,6 +30,7 @@ interface User {
 }
 
 const AdminVoucherList: React.FC = () => {
+  const toast = useToast();
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,15 +76,11 @@ const AdminVoucherList: React.FC = () => {
     try {
       setLoading(true);
       setError('');
-      const response = await fetch(`${API_BASE_URL}/vouchers?admin=1`, {
-        credentials: 'include',
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setVouchers(data.data || []);
-      }
+      const res = await httpGet<{ success: boolean; data?: Voucher[] }>('vouchers', { admin: 1 });
+      setVouchers(res?.data || []);
     } catch (err: any) {
       setError(err.message || 'Tải danh sách voucher thất bại');
+      toast.error('Tải danh sách voucher thất bại: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -90,13 +88,8 @@ const AdminVoucherList: React.FC = () => {
 
   const loadUsers = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/users?admin=1`, {
-        credentials: 'include',
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.data || []);
-      }
+      const res = await httpGet<{ success: boolean; data?: User[] }>('users', { admin: 1 });
+      setUsers(res?.data || []);
     } catch (err) {
       console.error('Error loading users:', err);
     }
@@ -145,34 +138,24 @@ const AdminVoucherList: React.FC = () => {
   const handleSaveVoucher = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!voucherForm.code.trim() || !voucherForm.name.trim()) {
-      setError('Vui lòng nhập mã và tên voucher');
+      toast.warning('Vui lòng nhập mã và tên voucher');
       return;
     }
 
     try {
       setIsSubmitting(true);
-      const url = editingVoucher
-        ? `${API_BASE_URL}/vouchers/${editingVoucher.id}`
-        : `${API_BASE_URL}/vouchers`;
-
-      const method = editingVoucher ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(voucherForm),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Lưu voucher thất bại');
+      if (editingVoucher) {
+        await httpPut(`vouchers/${editingVoucher.id}`, voucherForm);
+        toast.success('Cập nhật voucher thành công!');
+      } else {
+        await httpPost('vouchers', voucherForm);
+        toast.success('Tạo voucher mới thành công!');
       }
 
       setShowVoucherModal(false);
       loadVouchers();
     } catch (err: any) {
-      setError(err.message || 'Lỗi khi lưu voucher');
+      toast.error(err.message || 'Lỗi khi lưu voucher');
     } finally {
       setIsSubmitting(false);
     }
@@ -181,32 +164,22 @@ const AdminVoucherList: React.FC = () => {
   const handleAssignVoucher = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!assignForm.voucher_id) {
-      setError('Vui lòng chọn voucher cần gán');
+      toast.warning('Vui lòng chọn voucher cần gán');
       return;
     }
     if (!assignForm.assign_to_all && !assignForm.user_id) {
-      setError('Vui lòng chọn khách hàng hoặc tích chọn gán cho tất cả');
+      toast.warning('Vui lòng chọn khách hàng hoặc tích chọn gán cho tất cả');
       return;
     }
 
     try {
       setIsSubmitting(true);
-      const response = await fetch(`${API_BASE_URL}/user-vouchers`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(assignForm),
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || errData.message || 'Gán voucher thất bại');
-      }
-
+      await httpPost('user-vouchers', assignForm);
+      toast.success('Gán voucher cho khách hàng thành công!');
       setShowAssignModal(false);
       setAssignForm({ user_id: '', voucher_id: '', assign_to_all: false });
     } catch (err: any) {
-      setError(err.message || 'Gán voucher thất bại');
+      toast.error(err.message || 'Gán voucher thất bại');
     } finally {
       setIsSubmitting(false);
     }
@@ -214,18 +187,12 @@ const AdminVoucherList: React.FC = () => {
 
   const toggleVoucherStatus = async (voucherId: number, currentStatus: boolean) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/vouchers/${voucherId}/toggle-status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ is_active: !currentStatus }),
-      });
-
-      if (response.ok) {
-        loadVouchers();
-      }
+      await httpPost(`vouchers/${voucherId}/toggle-status`, { is_active: !currentStatus });
+      toast.success('Đã cập nhật trạng thái voucher');
+      loadVouchers();
     } catch (err) {
       console.error('Error toggling voucher status:', err);
+      toast.error('Cập nhật trạng thái thất bại');
     }
   };
 
@@ -234,19 +201,12 @@ const AdminVoucherList: React.FC = () => {
 
     try {
       setIsDeleting(true);
-      const response = await fetch(`${API_BASE_URL}/vouchers/${deleteTargetId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        setDeleteTargetId(null);
-        loadVouchers();
-      } else {
-        throw new Error('Xóa voucher thất bại');
-      }
+      await httpDelete(`vouchers/${deleteTargetId}`);
+      toast.success('Xóa voucher thành công!');
+      setDeleteTargetId(null);
+      loadVouchers();
     } catch (err: any) {
-      setError(err.message || 'Lỗi khi xóa voucher');
+      toast.error(err.message || 'Lỗi khi xóa voucher');
     } finally {
       setIsDeleting(false);
     }

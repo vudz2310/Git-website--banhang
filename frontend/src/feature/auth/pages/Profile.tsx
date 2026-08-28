@@ -4,6 +4,7 @@ import { AuthService } from '../services/authService';
 import { UploadService } from '../../../api/uploadService';
 import { httpPut } from '../../../api/http';
 import { getAssetUrl } from '../../../common';
+import { useToast } from '../../../context';
 import type { User } from '../../../api/types';
 import { UserIcon } from '../../../components/Icons';
 
@@ -18,6 +19,7 @@ const Profile: React.FC = () => {
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const toast = useToast();
 
   useEffect(() => {
     const currentUser = AuthService.getUser();
@@ -50,10 +52,10 @@ const Profile: React.FC = () => {
       setUser(updatedUser);
       setIsEditing(false);
       AuthService.setUser(updatedUser);
-      alert('Cập nhật thông tin thành công!');
+      toast.success('Cập nhật thông tin thành công!');
     } catch (error: any) {
       console.error('Update profile error:', error);
-      alert('Cập nhật thông tin thất bại: ' + (error.message || 'Lỗi không xác định'));
+      toast.error('Cập nhật thông tin thất bại: ' + (error.message || 'Lỗi không xác định'));
     }
   };
 
@@ -75,12 +77,12 @@ const Profile: React.FC = () => {
     if (!file || !user) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Vui lòng chọn file ảnh');
+      toast.warning('Vui lòng chọn file hình ảnh hợp lệ (PNG, JPG, WEBP)');
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('Kích thước file không được vượt quá 5MB');
+      toast.warning('Kích thước file không được vượt quá 5MB');
       return;
     }
 
@@ -97,10 +99,10 @@ const Profile: React.FC = () => {
       const updatedUser = { ...user, avatar: avatarUrl };
       setUser(updatedUser);
       AuthService.setUser(updatedUser);
-      alert('Cập nhật avatar thành công!');
+      toast.success('Cập nhật avatar thành công!');
     } catch (error: any) {
       console.error('Upload avatar error:', error);
-      alert('Upload avatar thất bại: ' + (error.message || 'Lỗi không xác định'));
+      toast.error('Upload avatar thất bại: ' + (error.message || 'Lỗi không xác định'));
     } finally {
       setUploadingAvatar(false);
       if (fileInputRef.current) {

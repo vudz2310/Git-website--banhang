@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ProductService } from '../services/productService';
-import { CartService } from '../../cart';
 import { AuthService } from '../../auth';
 import { httpGet, httpPost } from '../../../api/http';
+import { useToast, useCart } from '../../../context';
 import type { Product, ProductVariant, ProductImage } from '../../../api/types';
 import { CheckIcon, WarningIcon, InfoIcon, XIcon, StarIcon, ShoppingCartIcon, CreditCardIcon, DocumentIcon } from '../../../components/Icons';
 
@@ -21,6 +21,8 @@ interface Review {
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const toast = useToast();
+  const { addItem: addCartItem } = useCart();
   const productId = Number(id);
   const [product, setProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
@@ -89,20 +91,20 @@ const ProductDetail: React.FC = () => {
     e.preventDefault();
     
     if (!reviewForm.content.trim()) {
-      alert('Vui lòng nhập nội dung đánh giá');
+      toast.warning('Vui lòng nhập nội dung đánh giá');
       return;
     }
 
     const currentUser = AuthService.getUser();
     if (!currentUser) {
-      alert('Vui lòng đăng nhập để đánh giá sản phẩm');
+      toast.warning('Vui lòng đăng nhập để đánh giá sản phẩm');
       navigate('/login');
       return;
     }
     
     const userId = Number(currentUser.id);
     if (!userId || isNaN(userId)) {
-      alert('Lỗi: ID người dùng không hợp lệ. Vui lòng đăng nhập lại.');
+      toast.error('Lỗi: ID người dùng không hợp lệ. Vui lòng đăng nhập lại.');
       AuthService.clearUser();
       navigate('/login');
       return;
@@ -119,13 +121,13 @@ const ProductDetail: React.FC = () => {
       };
 
       await httpPost('reviews', requestBody);
-      alert('Cảm ơn bạn đã đánh giá! Đánh giá sẽ được duyệt trong thời gian sớm nhất.');
+      toast.success('Cảm ơn bạn đã đánh giá! Đánh giá sẽ được hiển thị sau khi duyệt.');
       setReviewForm({ rating: 5, title: '', content: '' });
       setShowReviewForm(false);
       loadReviews();
     } catch (error: any) {
       console.error('Error submitting review:', error);
-      alert('Có lỗi xảy ra khi gửi đánh giá: ' + (error.message || 'Lỗi không xác định'));
+      toast.error('Có lỗi xảy ra khi gửi đánh giá: ' + (error.message || 'Lỗi không xác định'));
     } finally {
       setSubmittingReview(false);
     }
@@ -133,26 +135,19 @@ const ProductDetail: React.FC = () => {
 
   const handleAddToCart = async () => {
     if (!selectedVariant) {
-      alert('Vui lòng chọn biến thể sản phẩm');
+      toast.warning('Vui lòng chọn biến thể sản phẩm');
       return;
     }
     
     setAddingToCart(true);
     try {
-      await CartService.addItem(selectedVariant.id, quantity, selectedVariant.price);
-      
-      // Hiển thị thông báo thành công
+      await addCartItem(selectedVariant.id, quantity, selectedVariant.price);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-      
-      // Reset form
       setQuantity(1);
-      
-      // Trigger reload cart count in header (có thể cần context hoặc event)
-      window.dispatchEvent(new CustomEvent('cartUpdated'));
-      
+      toast.success('Đã thêm sản phẩm vào giỏ hàng thành công!');
     } catch (e: any) {
-      alert('Thêm vào giỏ hàng thất bại: ' + e.message);
+      toast.error('Thêm vào giỏ hàng thất bại: ' + e.message);
     } finally {
       setAddingToCart(false);
     }
@@ -160,11 +155,10 @@ const ProductDetail: React.FC = () => {
 
   const handleBuyNow = () => {
     if (!selectedVariant) {
-      alert('Vui lòng chọn biến thể sản phẩm');
+      toast.warning('Vui lòng chọn biến thể sản phẩm');
       return;
     }
     
-    // Thêm vào giỏ hàng trước, sau đó chuyển đến checkout
     handleAddToCart().then(() => {
       navigate('/checkout');
     });

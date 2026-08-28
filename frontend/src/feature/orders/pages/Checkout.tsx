@@ -16,6 +16,7 @@ import {
 } from '../components';
 import { LoadingSpinner } from '../../../common';
 import { httpGet } from '../../../api/http';
+import { useToast } from '../../../context';
 
 declare global {
   interface Window {
@@ -25,6 +26,7 @@ declare global {
 
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [cartItems, setCartItems] = useState<CartItemWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
@@ -256,8 +258,9 @@ const Checkout: React.FC = () => {
     if (found) {
       setSelectedVoucher(found);
       setVoucherCode('');
+      toast.success(`Đã áp dụng mã giảm giá: ${found.voucher.code}`);
     } else {
-      alert('Mã giảm giá không tồn tại hoặc đã được sử dụng');
+      toast.error('Mã giảm giá không tồn tại hoặc đã được sử dụng');
     }
   };
 
@@ -283,7 +286,7 @@ const Checkout: React.FC = () => {
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.fullName || !form.email || !form.phone || !form.address || !form.city || !form.district) {
-      alert('Vui lòng điền đầy đủ các thông tin giao hàng bắt buộc');
+      toast.warning('Vui lòng điền đầy đủ các thông tin giao hàng bắt buộc');
       return;
     }
 
@@ -343,14 +346,14 @@ const Checkout: React.FC = () => {
           }
         }
 
-        alert(`Đặt hàng thành công! Mã đơn hàng: ${response.order.code || response.order.id}`);
+        toast.success(`Đặt hàng thành công! Mã đơn hàng: ${response.order.code || response.order.id}`);
         await CartService.clearCart();
         navigate('/profile');
       } else {
         throw new Error(response.message || 'Tạo đơn hàng thất bại');
       }
     } catch (err: any) {
-      alert('Đặt hàng thất bại: ' + (err.message || 'Vui lòng kiểm tra lại kết nối'));
+      toast.error('Đặt hàng thất bại: ' + (err.message || 'Vui lòng kiểm tra lại kết nối'));
     } finally {
       setSubmitting(false);
     }
