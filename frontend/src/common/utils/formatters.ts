@@ -82,3 +82,6 @@ export function formatNumber(value?: number | null): string {
   if (value === undefined || value === null || isNaN(value)) return '0';
   return new Intl.NumberFormat('vi-VN').format(value);
 }
+
+export { getAssetUrl, API_HOST } from '../../api/http';
+

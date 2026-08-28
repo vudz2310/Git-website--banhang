@@ -1,19 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthService } from '../services/authService';
+import { UploadService } from '../../../api/uploadService';
+import { httpPut } from '../../../api/http';
+import { getAssetUrl } from '../../../common';
+import type { User } from '../../../api/types';
 import { UserIcon } from '../../../components/Icons';
 
 const Profile: React.FC = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [editForm, setEditForm] = useState({
     full_name: '',
     email: '',
     phone: ''
   });
-
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,6 +25,7 @@ const Profile: React.FC = () => {
       navigate('/login');
       return;
     }
+
     setUser(currentUser);
     setEditForm({
       full_name: currentUser.full_name || '',
@@ -35,32 +39,17 @@ const Profile: React.FC = () => {
   };
 
   const handleSave = async () => {
+    if (!user) return;
     try {
-      // Gọi API cập nhật thông tin user
-      const response = await fetch(`http://localhost:3000/api/users/${user.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          full_name: editForm.full_name,
-          phone: editForm.phone || null
-        })
+      await httpPut(`users/${user.id}`, {
+        full_name: editForm.full_name,
+        phone: editForm.phone || null
       });
 
-      if (!response.ok) {
-        throw new Error('Cập nhật thông tin thất bại');
-      }
-
-      // Cập nhật thông tin user
       const updatedUser = { ...user, ...editForm };
       setUser(updatedUser);
       setIsEditing(false);
-      
-      // Cập nhật localStorage
       AuthService.setUser(updatedUser);
-      
       alert('Cập nhật thông tin thành công!');
     } catch (error: any) {
       console.error('Update profile error:', error);
@@ -83,15 +72,13 @@ const Profile: React.FC = () => {
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       alert('Vui lòng chọn file ảnh');
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert('Kích thước file không được vượt quá 5MB');
       return;
@@ -99,44 +86,17 @@ const Profile: React.FC = () => {
 
     setUploadingAvatar(true);
     try {
-      // Upload avatar
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const uploadResponse = await fetch('http://localhost:3000/api/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include'
-      });
-
-      if (!uploadResponse.ok) {
+      const uploadRes = await UploadService.uploadSingle(file);
+      if (!uploadRes.success) {
         throw new Error('Upload avatar thất bại');
       }
 
-      const uploadData = await uploadResponse.json();
-      const avatarUrl = uploadData.url;
+      const avatarUrl = uploadRes.url;
+      await httpPut(`users/${user.id}`, { avatar: avatarUrl });
 
-      // Update user avatar
-      const updateResponse = await fetch(`http://localhost:3000/api/users/${user.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          avatar: avatarUrl
-        })
-      });
-
-      if (!updateResponse.ok) {
-        throw new Error('Cập nhật avatar thất bại');
-      }
-
-      // Update local state
       const updatedUser = { ...user, avatar: avatarUrl };
       setUser(updatedUser);
       AuthService.setUser(updatedUser);
-      
       alert('Cập nhật avatar thành công!');
     } catch (error: any) {
       console.error('Upload avatar error:', error);
@@ -163,20 +123,18 @@ const Profile: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Thông tin cá nhân</h1>
           <p className="mt-2 text-gray-600">Quản lý thông tin tài khoản của bạn</p>
         </div>
 
-        {/* Avatar Section */}
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="px-6 py-6">
             <div className="flex flex-col items-center">
               <div className="relative">
                 {user.avatar ? (
                   <img
-                    src={`http://localhost:3000${user.avatar}`}
+                    src={getAssetUrl(user.avatar)}
                     alt="Avatar"
                     className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
                     onError={(e) => {

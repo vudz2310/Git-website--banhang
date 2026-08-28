@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { EmailIcon, MapIcon, ClockIcon, UserIcon, LocationIcon, PhoneIcon } from '../../../components/Icons';
 import { AuthService } from '../../auth';
+import { getAssetUrl } from '../../../common';
 
 
 const Contact: React.FC = () => {
@@ -84,7 +85,7 @@ const Contact: React.FC = () => {
                 <div className="flex items-center space-x-3 bg-blue-50 px-4 py-2 rounded-lg">
                   {user.avatar ? (
                     <img
-                      src={`http://localhost:3000${user.avatar}`}
+                      src={getAssetUrl(user.avatar)}
                       alt="Avatar"
                       className="w-10 h-10 rounded-full object-cover"
                       onError={(e) => {
@@ -226,7 +227,7 @@ const Contact: React.FC = () => {
                 <div className="flex items-center space-x-4 mb-6">
                   {user.avatar ? (
                     <img
-                      src={`http://localhost:3000${user.avatar}`}
+                      src={getAssetUrl(user.avatar)}
                       alt="Avatar"
                       className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
                       onError={(e) => {

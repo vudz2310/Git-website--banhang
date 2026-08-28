@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { httpGet, httpPost, httpDelete } from '../../../api/http';
 
 interface Review {
   id: number;
@@ -32,16 +33,8 @@ const AdminReviewList: React.FC = () => {
   const loadReviews = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3000/api/reviews?admin=1', {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setReviews(data.data || []);
-      } else {
-        console.error('Failed to load reviews');
-      }
+      const data = await httpGet<{ success: boolean; data?: Review[] }>('reviews', { admin: 1 });
+      setReviews(data?.data || []);
     } catch (error) {
       console.error('Error loading reviews:', error);
     } finally {
@@ -51,17 +44,9 @@ const AdminReviewList: React.FC = () => {
 
   const approveReview = async (reviewId: number) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/reviews/${reviewId}/approve?admin=1`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        loadReviews();
-        alert('Duyệt đánh giá thành công!');
-      } else {
-        alert('Duyệt đánh giá thất bại!');
-      }
+      await httpPost(`reviews/${reviewId}/approve?admin=1`);
+      loadReviews();
+      alert('Duyệt đánh giá thành công!');
     } catch (error) {
       console.error('Error approving review:', error);
       alert('Duyệt đánh giá thất bại!');
@@ -70,17 +55,9 @@ const AdminReviewList: React.FC = () => {
 
   const rejectReview = async (reviewId: number) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/reviews/${reviewId}/reject?admin=1`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        loadReviews();
-        alert('Từ chối đánh giá thành công!');
-      } else {
-        alert('Từ chối đánh giá thất bại!');
-      }
+      await httpPost(`reviews/${reviewId}/reject?admin=1`);
+      loadReviews();
+      alert('Từ chối đánh giá thành công!');
     } catch (error) {
       console.error('Error rejecting review:', error);
       alert('Từ chối đánh giá thất bại!');
@@ -91,17 +68,9 @@ const AdminReviewList: React.FC = () => {
     if (!confirm('Bạn có chắc muốn xóa đánh giá này?')) return;
     
     try {
-      const response = await fetch(`http://localhost:3000/api/reviews/${reviewId}?admin=1`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        loadReviews();
-        alert('Xóa đánh giá thành công!');
-      } else {
-        alert('Xóa đánh giá thất bại!');
-      }
+      await httpDelete(`reviews/${reviewId}?admin=1`);
+      loadReviews();
+      alert('Xóa đánh giá thành công!');
     } catch (error) {
       console.error('Error deleting review:', error);
       alert('Xóa đánh giá thất bại!');

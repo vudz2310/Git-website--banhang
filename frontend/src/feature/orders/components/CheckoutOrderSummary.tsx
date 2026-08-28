@@ -1,6 +1,6 @@
 import React from 'react';
 import type { CartItemWithDetails } from '../types';
-import { formatCurrency, BoxIcon, ShoppingCartIcon } from '../../../common';
+import { formatCurrency, getAssetUrl, BoxIcon, ShoppingCartIcon } from '../../../common';
 
 export interface CheckoutOrderSummaryProps {
   cartItems: CartItemWithDetails[];
@@ -37,7 +37,7 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
             <div className="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
               {item.product_img ? (
                 <img
-                  src={`http://localhost:3000${item.product_img}`}
+                  src={getAssetUrl(item.product_img)}
                   alt={item.product_name}
                   className="w-full h-full object-cover"
                 />

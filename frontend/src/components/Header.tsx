@@ -1,48 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { AuthService } from "../feature/auth";
-import { CartService } from "../feature/cart";
+import { Link, useNavigate } from "react-router-dom";
 import { CategoryService } from "../feature/admin";
-import type { User, Category } from "../api/types";
+import type { Category } from "../api/types";
 import {
   ChevronDownIcon,
   ShoppingCartIcon,
   MenuIcon,
   XIcon,
 } from "./Icons";
-import { API_BASE_URL } from "../api/http";
-import { useSettings } from "../context/SettingsContext";
-
-const getAvatarUrl = (avatar: string | null | undefined): string => {
-  if (!avatar) return "";
-  if (avatar.startsWith("http")) return avatar;
-  const baseUrl = API_BASE_URL.replace("/api", "");
-  return `${baseUrl}${avatar}`;
-};
+import { useSettings, useAuth, useCart } from "../context";
+import { getAssetUrl } from "../common";
 
 const Header: React.FC = () => {
   const { settings } = useSettings();
-  const [user, setUser] = useState<User | null>(null);
-  const [cartItemCount, setCartItemCount] = useState(0);
+  const { user, logout } = useAuth();
+  const { itemCount: cartItemCount } = useCart();
+  const navigate = useNavigate();
+  
   const [categories, setCategories] = useState<Category[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileCategoryOpen, setMobileCategoryOpen] = useState(false);
 
   useEffect(() => {
-    const currentUser = AuthService.getUser();
-    setUser(currentUser);
-
-    // Load cart item count
-    const loadCartCount = async () => {
-      try {
-        const cart = await CartService.getCart();
-        setCartItemCount(CartService.calculateTotalQuantity(cart.items));
-      } catch (e) {
-        console.error("Load cart count error:", e);
-      }
-    };
-    loadCartCount();
-
     // Load categories
     const loadCategories = async () => {
       try {
@@ -53,38 +32,11 @@ const Header: React.FC = () => {
       }
     };
     loadCategories();
-
-    // Listen for cart updates
-    const handleCartUpdate = () => {
-      loadCartCount();
-    };
-
-    // Listen for auth changes
-    const handleAuthChange = () => {
-      const currentUser = AuthService.getUser();
-      setUser(currentUser);
-      if (!currentUser) {
-        setCartItemCount(0);
-      } else {
-        loadCartCount();
-      }
-    };
-
-    window.addEventListener("cartUpdated", handleCartUpdate);
-    window.addEventListener("authChanged", handleAuthChange);
-
-    return () => {
-      window.removeEventListener("cartUpdated", handleCartUpdate);
-      window.removeEventListener("authChanged", handleAuthChange);
-    };
   }, []);
 
   const handleLogout = () => {
-    AuthService.clearUser();
-    setUser(null);
-    setCartItemCount(0);
-    // Reload để update toàn bộ UI
-    setTimeout(() => window.location.reload(), 100);
+    logout();
+    navigate('/');
   };
 
   return (
@@ -231,7 +183,7 @@ const Header: React.FC = () => {
                   <button className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors">
                     {user.avatar ? (
                       <img
-                        src={getAvatarUrl(user.avatar)}
+                        src={getAssetUrl(user.avatar)}
                         alt={user.full_name}
                         className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
                         onError={(e) => {
@@ -403,7 +355,7 @@ const Header: React.FC = () => {
                   <div className="px-4 py-3 bg-gray-50 rounded-lg mb-2 flex items-center space-x-3">
                     {user.avatar ? (
                       <img
-                        src={getAvatarUrl(user.avatar)}
+                        src={getAssetUrl(user.avatar)}
                         alt={user.full_name}
                         className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
                         onError={(e) => {

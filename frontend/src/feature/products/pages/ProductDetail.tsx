@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ProductService } from '../services/productService';
 import { CartService } from '../../cart';
 import { AuthService } from '../../auth';
+import { httpGet, httpPost } from '../../../api/http';
 import type { Product, ProductVariant, ProductImage } from '../../../api/types';
 import { CheckIcon, WarningIcon, InfoIcon, XIcon, StarIcon, ShoppingCartIcon, CreditCardIcon, DocumentIcon } from '../../../components/Icons';
 
@@ -44,47 +45,37 @@ const ProductDetail: React.FC = () => {
   const [submittingReview, setSubmittingReview] = useState(false);
 
   useEffect(() => {
-    if (!productId) return;
-    const loadProduct = async () => {
-      try {
-        const detail = await ProductService.getDetail(productId);
-        setProduct(detail.product);
-        setVariants(detail.variants);
-        setImages(detail.images);
-        if (detail.variants.length > 0) {
-          setSelectedVariant(detail.variants[0]);
-        }
-        // Reset image index khi load sản phẩm mới
-        setCurrentImageIndex(0);
-        
-        // Debug logging
-        console.log('ProductDetail loaded:', {
-          product: detail.product,
-          variants: detail.variants.length,
-          images: detail.images.length,
-          product_img: detail.product?.product_img
-        });
-      } catch (e: any) {
-        setError(e.message || 'Tải thông tin sản phẩm thất bại');
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProduct();
-    loadReviews();
+    if (productId) {
+      loadProduct();
+      loadReviews();
+    }
   }, [productId]);
+
+  const loadProduct = async () => {
+    try {
+      const detail = await ProductService.getDetail(productId);
+      setProduct(detail.product);
+      setVariants(detail.variants);
+      setImages(detail.images);
+      if (detail.variants.length > 0) {
+        setSelectedVariant(detail.variants[0]);
+      }
+      setCurrentImageIndex(0);
+    } catch (e: any) {
+      setError(e.message || 'Tải thông tin sản phẩm thất bại');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadReviews = async () => {
     if (!productId) return;
     
     try {
       setReviewsLoading(true);
-      const response = await fetch(`http://localhost:3000/api/products/${productId}/reviews`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        // Chỉ hiển thị đánh giá đã được duyệt
-        const approvedReviews = (data.data || []).filter((review: Review) => review.is_approved === true);
+      const res = await httpGet<{ success: boolean; data?: Review[] }>(`products/${productId}/reviews`);
+      if (res && res.data) {
+        const approvedReviews = (res.data || []).filter((review: Review) => review.is_approved === true);
         setReviews(approvedReviews);
       }
     } catch (error) {
@@ -102,31 +93,15 @@ const ProductDetail: React.FC = () => {
       return;
     }
 
-    // Kiểm tra đăng nhập
     const currentUser = AuthService.getUser();
-    console.log('[ProductDetail] Current user from AuthService:', currentUser);
-    console.log('[ProductDetail] LocalStorage raw:', localStorage.getItem('user'));
-    
     if (!currentUser) {
       alert('Vui lòng đăng nhập để đánh giá sản phẩm');
       navigate('/login');
       return;
     }
     
-    // Kiểm tra user có id không
-    if (!currentUser.id && currentUser.id !== 0) {
-      console.error('[ProductDetail] User object missing id:', currentUser);
-      console.error('[ProductDetail] User keys:', Object.keys(currentUser));
-      alert('Lỗi: Thông tin người dùng không hợp lệ. Vui lòng đăng nhập lại.');
-      AuthService.clearUser();
-      navigate('/login');
-      return;
-    }
-
-    // Đảm bảo user_id là number
     const userId = Number(currentUser.id);
-    if (isNaN(userId) || userId <= 0) {
-      console.error('[ProductDetail] Invalid user_id:', currentUser.id, 'Type:', typeof currentUser.id);
+    if (!userId || isNaN(userId)) {
       alert('Lỗi: ID người dùng không hợp lệ. Vui lòng đăng nhập lại.');
       AuthService.clearUser();
       navigate('/login');
@@ -135,7 +110,6 @@ const ProductDetail: React.FC = () => {
 
     setSubmittingReview(true);
     try {
-
       const requestBody = {
         product_id: productId,
         user_id: userId,
@@ -143,34 +117,15 @@ const ProductDetail: React.FC = () => {
         title: reviewForm.title.trim(),
         content: reviewForm.content.trim()
       };
-      
-      console.log('[ProductDetail] Current user object:', currentUser);
-      console.log('[ProductDetail] Extracted user_id:', userId);
-      console.log('[ProductDetail] Sending review request:', requestBody);
-      console.log('[ProductDetail] Request body JSON:', JSON.stringify(requestBody));
 
-      const response = await fetch('http://localhost:3000/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify(requestBody)
-      });
-
-      if (response.ok) {
-        alert('Cảm ơn bạn đã đánh giá! Đánh giá sẽ được duyệt trong thời gian sớm nhất.');
-        setReviewForm({ rating: 5, title: '', content: '' });
-        setShowReviewForm(false);
-        // Reload reviews để hiển thị đánh giá mới
-        loadReviews();
-      } else {
-        const error = await response.json();
-        alert('Gửi đánh giá thất bại: ' + (error.error || error.message || 'Lỗi không xác định'));
-      }
-    } catch (error) {
+      await httpPost('reviews', requestBody);
+      alert('Cảm ơn bạn đã đánh giá! Đánh giá sẽ được duyệt trong thời gian sớm nhất.');
+      setReviewForm({ rating: 5, title: '', content: '' });
+      setShowReviewForm(false);
+      loadReviews();
+    } catch (error: any) {
       console.error('Error submitting review:', error);
-      alert('Có lỗi xảy ra khi gửi đánh giá');
+      alert('Có lỗi xảy ra khi gửi đánh giá: ' + (error.message || 'Lỗi không xác định'));
     } finally {
       setSubmittingReview(false);
     }

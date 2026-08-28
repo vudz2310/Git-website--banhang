@@ -9,6 +9,23 @@ export const API_BASE_URL = envApiUrl || (
     : 'http://localhost:5000/api' // Local API URL
 );
 
+/**
+ * Host của server backend (dùng để load hình ảnh static uploads)
+ */
+export const API_HOST = API_BASE_URL.replace(/\/api\/?$/, '');
+
+/**
+ * Helper sinh URL ảnh an toàn từ server hoặc URL bên ngoài
+ */
+export function getAssetUrl(path?: string | null): string {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+    return path;
+  }
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${API_HOST}${cleanPath}`;
+}
+
 function joinUrl(base: string, path: string) {
   if (!base.endsWith('/')) base += '/';
   if (path.startsWith('/')) path = path.slice(1);
