@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { SettingService } from '../assets/api/settingService';
-import type { SettingsData, GeneralSetting, FooterSetting, SocialSetting } from '../assets/api/settingService';
+import { SettingService } from '../feature/admin';
+import type { SettingsData, GeneralSetting, FooterSetting, SocialSetting } from '../feature/admin';
 
 interface SettingsContextType {
   settings: SettingsData;

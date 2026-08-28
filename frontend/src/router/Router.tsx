@@ -1,36 +1,32 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import Home from '../pages/Home';
-import Products from '../pages/Products';
-import ProductDetail from '../pages/ProductDetail';
-import Cart from '../pages/Cart';
-import Login from '../pages/Login';
-import Register from '../pages/Register';
-import Profile from '../pages/Profile';
-import Checkout from '../pages/Checkout';
-import MomoReturn from '../pages/MomoReturn';
-import NotFound from '../pages/NotFound';
-import Orders from '../pages/Orders';
-import About from '../pages/About';
-import Contact from '../pages/Contact';
+// Layouts & Guards
+import Layout from '../components/Layout';
+import { ProtectedRoute } from '../feature/auth';
+import {
+  AdminLayout,
+  AdminProductList,
+  AdminProductCreate,
+  AdminProductImages,
+  AdminProductVariantList,
+  AdminCategoryList,
+  AdminCategoryCreate,
+  AdminOrderList,
+  AdminUserList,
+  AdminVoucherList,
+  AdminReviewList,
+  AdminInventoryList,
+  AdminBanners,
+  AdminSettings,
+} from '../feature/admin';
 
-import Layout from '../component/Layout';
-import AdminLayout from '../component/AdminLayout';
-import ProtectedRoute from '../component/ProtectedRoute';
-import AdminProductList from '../pages/admin/AdminProductList';
-import AdminProductCreate from '../pages/admin/AdminProductCreate';
-import AdminProductImages from '../pages/admin/AdminProductImages';
-import AdminCategoryList from '../pages/admin/AdminCategoryList';
-import AdminCategoryCreate from '../pages/admin/AdminCategoryCreate';
-import AdminUserList from '../pages/admin/AdminUserList';
-import AdminOrderList from '../pages/admin/AdminOrderList';
-import AdminVoucherList from '../pages/admin/AdminVoucherList';
-import AdminReviewList from '../pages/admin/AdminReviewList';
-import AdminInventoryList from '../pages/admin/AdminInventoryList';
-import AdminProductVariantList from '../pages/admin/AdminProductVariantList';
-import AdminSettings from '../pages/admin/AdminSettings';
-import AdminBanners from '../pages/admin/AdminBanners';
+// Feature Pages
+import { Home, About, Contact, NotFound } from '../feature/home';
+import { Login, Register, Profile } from '../feature/auth';
+import { Products, ProductDetail } from '../feature/products';
+import { Cart } from '../feature/cart';
+import { Orders, Checkout, MomoReturn } from '../feature/orders';
 
 const AppRouter: React.FC = () => {
   return (
@@ -52,11 +48,14 @@ const AppRouter: React.FC = () => {
         </Route>
 
         {/* Admin routes - được bảo vệ bởi ProtectedRoute */}
-        <Route path="/admin" element={
-          <ProtectedRoute requireAdmin={true} redirectTo="/login">
-            <AdminLayout />
-          </ProtectedRoute>
-        }>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requireAdmin={true} redirectTo="/login">
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="categories" element={<AdminCategoryList />} />
           <Route path="categories/new" element={<AdminCategoryCreate />} />
           <Route path="products" element={<AdminProductList />} />
