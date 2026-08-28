@@ -34,3 +34,6 @@ export * from './components/Icons';
 
 // Shared Utilities
 export * from './utils/formatters';
+
+// Shared Validation Rules & Schemas
+export * from './validation';
