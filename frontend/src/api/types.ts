@@ -32,6 +32,7 @@ export interface Product {
   product_img_title?: string | null;
   has_images: boolean;
   brand?: string | null;
+  category_id?: ID | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
